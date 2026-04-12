@@ -5,16 +5,7 @@ const root = "/Users/javiperezz7/Documents/vpncostguide";
 const domain = "https://vpncostguide.com";
 const brand = "VPN Cost Guide";
 const lastmod = "2026-04-10";
-const adsenseScript = `<script>
-  window.__VPCG_ADSENSE_CLIENT__ = "ca-pub-3733223915347669";
-  if (window.location.protocol !== "file:") {
-    const adsScript = document.createElement("script");
-    adsScript.async = true;
-    adsScript.src = "https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-3733223915347669";
-    adsScript.crossOrigin = "anonymous";
-    document.head.appendChild(adsScript);
-  }
-</script>`;
+const adsenseScript = `<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-3733223915347669" crossorigin="anonymous"></script>`;
 
 const site = {
   brand,
