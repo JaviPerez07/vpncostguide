@@ -95,7 +95,9 @@ function injectSchema() {
         name: data.author,
       },
       itemReviewed: {
-        "@type": "Product",
+        "@type": "SoftwareApplication",
+        "applicationCategory": "SecurityApplication",
+        "operatingSystem": "Windows, Mac, iOS, Android",
         name: data.review.itemReviewed,
       },
       reviewRating: {
