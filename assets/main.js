@@ -84,29 +84,8 @@ function injectSchema() {
     });
   }
 
-  if (data.type === "review" && data.review?.itemReviewed) {
-    graph.push({
-      "@context": "https://schema.org",
-      "@type": "Review",
-      name: data.title,
-      reviewBody: data.description,
-      author: {
-        "@type": "Person",
-        name: data.author,
-      },
-      itemReviewed: {
-        "@type": "SoftwareApplication",
-        "applicationCategory": "SecurityApplication",
-        "operatingSystem": "Windows, Mac, iOS, Android",
-        name: data.review.itemReviewed,
-      },
-      reviewRating: {
-        "@type": "Rating",
-        ratingValue: data.review.ratingValue,
-        bestRating: data.review.bestRating,
-      },
-    });
-  }
+  // Review schema is hardcoded in the <head> of each review page — skip JS injection to avoid duplicates
+  // that can cause Google Search Console to detect conflicting structured data.
 
   if (data.type === "calculator") {
     graph.push({
