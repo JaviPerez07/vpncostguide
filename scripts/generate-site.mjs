@@ -669,6 +669,38 @@ function pageShell(page, innerHtml, fromFile) {
     <meta name="theme-color" content="#07111f">
     ${adsenseScript}
     <link rel="stylesheet" href="${escapeAttr(assetCss)}">
+    ${page.type === "review" && page.reviewSchema ? `<script type="application/ld+json">
+${JSON.stringify({
+  "@context": "https://schema.org",
+  "@type": "Review",
+  "name": `${page.reviewSchema.itemReviewed} Review 2026`,
+  "reviewBody": page.description,
+  "author": { "@type": "Person", "name": site.author.name },
+  "itemReviewed": {
+    "@type": "SoftwareApplication",
+    "name": page.reviewSchema.itemReviewed,
+    "applicationCategory": "SecurityApplication",
+    "operatingSystem": "Windows, Mac, iOS, Android",
+    "offers": {
+      "@type": "Offer",
+      "price": "0",
+      "priceCurrency": "USD",
+      "availability": "https://schema.org/InStock"
+    }
+  },
+  "reviewRating": {
+    "@type": "Rating",
+    "ratingValue": String(Math.round(page.reviewSchema.ratingValue * 10) / 10),
+    "bestRating": String(page.reviewSchema.bestRating),
+    "worstRating": "1"
+  },
+  "publisher": {
+    "@type": "Organization",
+    "name": site.organization.name,
+    "url": site.organization.url
+  }
+}, null, 2)}
+</script>` : ""}
   </head>
   <body data-page-type="${escapeAttr(page.type)}">
     <div class="site-shell">
