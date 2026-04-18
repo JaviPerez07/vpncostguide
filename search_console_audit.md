@@ -1,6 +1,6 @@
 # Search Console Audit
 
-- Pages scanned: 78
+- Pages scanned: 98
 - Canonicals with .html: 0
 - Canonicals with www: 0
 - Canonicals with http: 0

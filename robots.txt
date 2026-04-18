@@ -1,3 +1,6 @@
 User-agent: *
+Disallow: /*?q=*
+Disallow: /*?s=*
 Allow: /
+
 Sitemap: https://vpncostguide.com/sitemap.xml
