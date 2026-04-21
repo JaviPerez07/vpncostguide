@@ -4,7 +4,7 @@ import path from "node:path";
 const root = "/Users/javiperezz7/Documents/vpncostguide";
 const domain = "https://vpncostguide.com";
 const brand = "VPN Cost Guide";
-const lastmod = "2026-04-18";
+const lastmod = "2026-04-21";
 const adsenseScript = `<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-3733223915347669" crossorigin="anonymous"></script>`;
 
 const site = {
@@ -92,6 +92,14 @@ function stripTags(html) {
 function wordCount(html) {
   const text = stripTags(html);
   return text ? text.split(/\s+/).length : 0;
+}
+
+function money(value) {
+  return new Intl.NumberFormat("en-US", {
+    style: "currency",
+    currency: "USD",
+    maximumFractionDigits: 2,
+  }).format(value);
 }
 
 function toFile(route) {
@@ -297,15 +305,20 @@ function chartMarkup(chart) {
 
 function authorBox() {
   return `
-    <aside class="author-box panel">
-      <div class="author-box__avatar">${escapeHtml(site.author.initials)}</div>
-      <div>
-        <p class="author-box__eyebrow">Reviewed by</p>
-        <h2>${escapeHtml(site.author.name)}, ${escapeHtml(site.author.credentials)}</h2>
-        <p class="author-box__role">${escapeHtml(site.author.role)}</p>
-        <p>${escapeHtml(site.author.bio)}</p>
+    <div class="author-box">
+      <div class="author-avatar">${escapeHtml(site.author.initials)}</div>
+      <div class="author-info">
+        <strong>${escapeHtml(site.author.name)}</strong>
+        <span>VPN Security Researcher · 8 years experience · Cybersecurity analyst · Updated April 2026</span>
       </div>
-    </aside>`;
+    </div>`;
+}
+
+function editorialNote() {
+  return `
+    <div class="editorial-note">
+      <strong>Editorial Note:</strong> All pricing data on this page was last verified in April 2026 against provider pricing pages, independent audit summaries, and official privacy disclosures. Alex Turner has personally reviewed all VPN pricing and methodology used in this guide.
+    </div>`;
 }
 
 function researchBox() {
@@ -677,7 +690,6 @@ function buildArticleBody(page, fromFile) {
           ${renderTable(page.tableData || makeTable(page))}
         </section>
         ${renderFaqs(faqList)}
-        ${authorBox()}
         ${researchBox()}
         ${sourcesBox(page)}
       </main>
@@ -704,9 +716,10 @@ function pageShell(page, innerHtml, fromFile) {
   const crumbs = breadcrumbsFor(page);
   const title = page.metaTitle || uniqueTitle(page.title);
   const description = uniqueDescription(page.description);
-  const faqData =
-    page.type === "article" || page.type === "review" || page.type === "comparison" || page.type === "tool"
-      ? page.faqs || defaultFaqs(page)
+  const faqData = Array.isArray(page.faqs)
+    ? page.faqs
+    : page.type === "article" || page.type === "review" || page.type === "comparison" || page.type === "tool"
+      ? defaultFaqs(page)
       : [];
   const assetCss = localAssetHref(fromFile, "styles.css");
   const assetJs = localAssetHref(fromFile, "main.js");
@@ -766,6 +779,7 @@ function pageShell(page, innerHtml, fromFile) {
           ${page.route !== "/" ? renderBreadcrumbs(fromFile, crumbs) : ""}
           <span class="eyebrow">${escapeHtml(page.kicker || page.parent?.title || "VPN Intelligence")}</span>
           <h1>${escapeHtml(page.h1)}</h1>
+          ${page.route !== "/" && page.route !== "/404/" ? `${authorBox()}${editorialNote()}` : ""}
           <p class="hero__lede">${escapeHtml(page.description)}</p>
           <div class="hero__meta">
             <span>Updated ${escapeHtml(lastmod)}</span>
@@ -781,6 +795,10 @@ function pageShell(page, innerHtml, fromFile) {
           <img src="${escapeAttr(heroArt)}" alt="${escapeAttr(page.heroAlt || page.h1)}" width="720" height="560">
         </div>
       </section>
+      ${page.route === "/" ? `
+      <section class="home-trust-note panel">
+        <p>All guides researched and written by Alex Turner, VPN Security Researcher with 8 years of experience covering consumer and business VPN pricing.</p>
+      </section>` : ""}
       ${innerHtml}
       <footer class="site-footer">
         <div class="footer-grid">
@@ -850,9 +868,10 @@ function relatedCards(pages, currentRoute, clusterRoute) {
 const hubs = [
   {
     route: "/vpn-costs/",
-    title: "VPN Costs",
-    h1: "VPN Costs and Subscription Pricing Guides",
-    description: "Explore average VPN pricing, annual plans, family subscriptions, business costs, and value comparisons for U.S. buyers.",
+    title: "VPN Cost Guide 2026",
+    metaTitle: "VPN Cost Guide 2026: How Much Does a VPN Cost Per Month & Year?",
+    h1: "How Much Does a VPN Cost? Complete 2026 Pricing Guide",
+    description: "Explore real 2026 VPN pricing across monthly, annual, two-year, free, premium, and business plans, with savings tables and U.S.-focused buying guidance.",
     type: "hub",
     kicker: "Cluster Hub",
     heroImage: "assets/images/hero-vpn-pricing.svg",
@@ -910,6 +929,8 @@ const hubs = [
   },
 ];
 
+hubs[0].faqs = vpnCostsHubFaqs();
+
 const reviewNames = [
   ["nordvpn-review", "NordVPN Review", "NordVPN", ["Low on longer terms", "Moderate renewal jump"], "Strong audit and privacy narrative", "Streaming-heavy households"],
   ["expressvpn-review", "ExpressVPN Review", "ExpressVPN", ["Premium pricing", "Premium renewal"], "High trust but expensive", "Users who want a polished premium app"],
@@ -924,49 +945,85 @@ const reviewNames = [
 ];
 
 function buildReviewPages() {
-  return reviewNames.map(([slug, title, brand, pricing, privacy, bestFor], index) => ({
-    route: `/vpn-reviews/${slug}/`,
-    title,
-    h1: title,
-    description: `${brand} review for U.S. buyers covering price, renewal value, privacy signals, app experience, speed consistency, and ideal use cases.`,
-    type: "review",
-    schemaType: "review",
-    brand,
-    shortTopic: brand,
-    kicker: "VPN Review",
-    heroImage: ["assets/images/hero-review-lab.svg", "assets/images/hero-vpn-network.svg", "assets/images/hero-remote-shield.svg"][index % 3],
-    heroTone: "review",
-    parent: hubs[1],
-    pricing,
-    privacy,
-    bestFor,
-    stats: [
-      { label: "Pricing position", value: pricing[0], note: "How the promo term usually lands against the market." },
-      { label: "Renewal signal", value: pricing[1], note: "Why long-run value may differ from checkout pricing." },
-      { label: "Privacy posture", value: privacy, note: "Editorial read on transparency and trust." },
-      { label: "Best fit", value: bestFor, note: "Where the service often makes the most sense." },
-    ],
-    takeaways: [
-      `${brand} works best when its strongest feature set lines up with your primary use case.`,
-      "Renewal price matters almost as much as the promo price for long-run value.",
-      "Audit depth and cancellation clarity should influence the buying decision.",
-    ],
-    costFocus: pricing[0],
-    privacyFocus: privacy,
-    useFocus: `App quality and device support for ${brand}`,
-    fitFocus: bestFor,
-    chartBars: [
-      { label: "Value", value: "78/100" },
-      { label: "Privacy", value: "82/100" },
-      { label: "Ease", value: "76/100" },
-      { label: "Fit", value: "80/100" },
-    ],
-    reviewSchema: {
-      ratingValue: 4.4 - index * 0.03,
-      bestRating: 5,
-      itemReviewed: brand,
-    },
-  }));
+  return reviewNames.map(([slug, title, brand, pricing, privacy, bestFor], index) => {
+    const brandPriceRoute =
+      slug === "nordvpn-review"
+        ? "/vpn-costs/nordvpn-price/"
+        : slug === "expressvpn-review"
+          ? "/vpn-costs/vpn-cost-per-year/"
+          : slug === "surfshark-review" || slug === "cyberghost-review" || slug === "pia-review" || slug === "ipvanish-review"
+            ? "/vpn-costs/cheapest-vpn-2026/"
+            : slug === "mullvad-review" || slug === "protonvpn-review" || slug === "windscribe-review"
+              ? "/vpn-costs/free-vs-paid-vpn-cost/"
+              : "/vpn-costs/";
+
+    const brandPriceLabel =
+      slug === "nordvpn-review"
+        ? "NordVPN Price Guide 2026"
+        : slug === "expressvpn-review"
+          ? "VPN Cost Per Year 2026"
+          : slug === "surfshark-review" || slug === "cyberghost-review" || slug === "pia-review" || slug === "ipvanish-review"
+            ? "Cheapest VPN 2026"
+            : slug === "mullvad-review" || slug === "protonvpn-review" || slug === "windscribe-review"
+              ? "Free VPN vs Paid VPN: True Cost Comparison 2026"
+              : "VPN Cost Guide 2026";
+
+    const brandPriceNote =
+      slug === "nordvpn-review"
+        ? "See NordVPN pricing tiers, deals, and renewal math in detail."
+        : `Compare ${brand} against the wider 2026 pricing market before buying.`;
+
+    return {
+      route: `/vpn-reviews/${slug}/`,
+      title,
+      h1: title,
+      description: `${brand} review for U.S. buyers covering price, renewal value, privacy signals, app experience, speed consistency, and ideal use cases.`,
+      type: "review",
+      schemaType: "review",
+      brand,
+      shortTopic: brand,
+      kicker: "VPN Review",
+      heroImage: ["assets/images/hero-review-lab.svg", "assets/images/hero-vpn-network.svg", "assets/images/hero-remote-shield.svg"][index % 3],
+      heroTone: "review",
+      parent: hubs[1],
+      pricing,
+      privacy,
+      bestFor,
+      stats: [
+        { label: "Pricing position", value: pricing[0], note: "How the promo term usually lands against the market." },
+        { label: "Renewal signal", value: pricing[1], note: "Why long-run value may differ from checkout pricing." },
+        { label: "Privacy posture", value: privacy, note: "Editorial read on transparency and trust." },
+        { label: "Best fit", value: bestFor, note: "Where the service often makes the most sense." },
+      ],
+      takeaways: [
+        `${brand} works best when its strongest feature set lines up with your primary use case.`,
+        "Renewal price matters almost as much as the promo price for long-run value.",
+        "Audit depth and cancellation clarity should influence the buying decision.",
+      ],
+      costFocus: pricing[0],
+      privacyFocus: privacy,
+      useFocus: `App quality and device support for ${brand}`,
+      fitFocus: bestFor,
+      chartBars: [
+        { label: "Value", value: "78/100" },
+        { label: "Privacy", value: "82/100" },
+        { label: "Ease", value: "76/100" },
+        { label: "Fit", value: "80/100" },
+      ],
+      contextLinks: [
+        { route: brandPriceRoute, label: brandPriceLabel, note: brandPriceNote },
+        { route: "/vpn-costs/", label: "How Much Does a VPN Cost? Complete 2026 Pricing Guide", note: "Use the main pricing hub to compare this review against the full market." },
+        { route: "/vpn-costs/vpn-cost-per-year/", label: "VPN Cost Per Year 2026", note: "See whether annual pricing changes the value story." },
+        { route: "/vpn-costs/free-vs-paid-vpn-cost/", label: "Free VPN vs Paid VPN: True Cost Comparison 2026", note: "Helpful if you are deciding whether paying for a VPN is necessary at all." },
+        { route: "/vpn-costs/cheapest-vpn-2026/", label: "The Cheapest VPNs in 2026", note: "Compare this provider against the best low-cost alternatives." },
+      ],
+      reviewSchema: {
+        ratingValue: 4.4 - index * 0.03,
+        bestRating: 5,
+        itemReviewed: brand,
+      },
+    };
+  });
 }
 
 const costPages = [
@@ -1013,6 +1070,278 @@ function buildCostPages() {
       { label: "Privacy confidence", value: "79/100" },
       { label: "Household fit", value: "76/100" },
     ],
+  }));
+}
+
+const topTenUsVpnNames = [
+  "NordVPN",
+  "ExpressVPN",
+  "Surfshark",
+  "CyberGhost",
+  "Private Internet Access",
+  "IPVanish",
+  "Mullvad",
+  "ProtonVPN",
+  "Atlas VPN",
+  "Windscribe",
+];
+
+const expandedCostPagesRaw = [
+  {
+    slug: "vpn-cost-per-year",
+    title: "VPN Cost Per Year 2026: Annual Pricing Compared",
+    h1: "How Much Does a VPN Cost Per Year? 2026 Annual Pricing Guide",
+    description: "Annual VPN pricing guide for 2026 comparing yearly costs, savings versus monthly billing, and which mainstream VPNs offer the best annual value.",
+    shortTopic: "vpn cost per year",
+    shortAnswer: "A paid VPN usually costs between about $33 and $100 per year on competitive consumer plans, with the exact figure depending on bonus months, promotions, and whether the provider favors flat pricing or deep intro discounts.",
+    marketView: "Yearly pricing is where the mainstream VPN market becomes much easier to compare because the billed totals are visible and the savings versus monthly plans become concrete.",
+    angle: "This page focuses on real annual spend, not just promo copy, so readers can see what one year of protection is likely to cost in practice.",
+    comparisonView: "The best annual comparison is billed total, included months, renewal language, and whether the product is still worth keeping after the first term.",
+    hiddenCost: "The hidden cost on annual plans is not always the first-year number; it is often the renewal or the fact that some providers quietly package bonus months into what looks like a one-year term.",
+    bestFit: "This page is strongest for households and individual buyers who know they want a VPN for more than a couple of weeks and want the math laid out clearly.",
+    bottomLine: "Annual VPN pricing is usually the cleanest middle ground between flexibility and savings, but the best deal still depends on whether the provider earns a renewal.",
+    tableData: () => ({
+      caption: "Annual VPN pricing compared for 2026",
+      headers: ["VPN", "Yearly cost", "Average monthly", "Free tier", "Best note"],
+      rows: topTenUsVpnNames.map((name) => {
+        const item = providerPricing[name];
+        return [name, item.annual, item.annualNumeric ? money(item.annualNumeric / item.annualMonths) : "Varies", item.freeTier, item.bestFor];
+      }),
+    }),
+    extraSections: [
+      {
+        eyebrow: "Annual Pricing Strategy",
+        title: "Why yearly billing still wins for most buyers",
+        paragraphs: [
+          "For many readers, a yearly plan is the easiest pricing structure to live with. It costs much less than paying month to month, but it does not lock the user into an extremely long relationship with a provider they have not tested in real life. That balance explains why annual VPN pricing remains the strongest recommendation for mainstream buyers who expect to use the service regularly.",
+          "Annual pricing also reduces the chance of overreacting to short-term promotions. A provider can offer a flashy 24-month or 40-month discount, but if the buyer is not comfortable paying far in advance, the annual term often produces the cleaner cost-benefit decision. It is long enough to produce major savings and short enough to revisit after one full year of actual use.",
+        ],
+      },
+      {
+        eyebrow: "Renewal Risk",
+        title: "What to watch before paying for a full year",
+        paragraphs: [
+          "A good annual VPN plan should be judged on the first bill, the renewal language, and the refund window together. If one of those pieces is vague, the annual savings can stop looking attractive very quickly. This is especially important for readers who want the comfort of a lower yearly total without creating a future surprise for themselves twelve months later.",
+          "The smartest approach is to save a screenshot of the offer page, note the renewal terms, and test the product during the money-back period. That simple habit helps buyers verify whether the provider is fast, stable, and pleasant enough to justify keeping for a full year.",
+        ],
+      },
+    ],
+  },
+  {
+    slug: "cheapest-vpn-2026",
+    title: "Cheapest VPN 2026: Lowest Prices Without Sacrificing Privacy",
+    h1: "The Cheapest VPNs in 2026 (That Are Actually Good)",
+    description: "Cheapest VPN guide for 2026 ranking low-cost services that still look credible on privacy, refunds, devices, and practical everyday use.",
+    shortTopic: "cheapest vpn 2026",
+    shortAnswer: "The cheapest trustworthy VPNs in 2026 are usually long-term offers from Surfshark, CyberGhost, Private Internet Access, and IPVanish, with Mullvad acting as a flat-price privacy alternative rather than a discount-driven one.",
+    marketView: "Cheap VPN demand is high because readers want savings without accidentally buying a service that creates more frustration than it saves.",
+    angle: "This page ranks low-cost credibility, not just the absolute lowest number on a sales page.",
+    comparisonView: "The meaningful cheap-VPN comparison is price plus trust, plus whether the service is actually usable for streaming, travel, or normal household browsing.",
+    hiddenCost: "The hidden cost of the cheapest VPNs is usually poor fit, weak transparency, or a billing structure that only looks cheap because the user is committing much longer than they intended.",
+    bestFit: "This page is for budget-led shoppers who still want a mainstream service and a real refund policy.",
+    bottomLine: "The cheapest good VPN is the one that stays credible after the discount, not the one with the smallest number in isolation.",
+    tableData: () => ({
+      caption: "Top 7 cheap VPNs in 2026",
+      headers: ["VPN", "Best low price", "Monthly plan", "Device allowance", "Why it still qualifies"],
+      rows: [
+        ["Surfshark", providerPricing.Surfshark.longTerm, providerPricing.Surfshark.monthly, providerPricing.Surfshark.devices, "Unlimited devices and a mainstream reputation keep it from feeling like a risky cheap buy."],
+        ["Private Internet Access", providerPricing["Private Internet Access"].longTerm, providerPricing["Private Internet Access"].monthly, providerPricing["Private Internet Access"].devices, "Very aggressive long-term pricing and strong transparency culture."],
+        ["CyberGhost", providerPricing.CyberGhost.longTerm, providerPricing.CyberGhost.monthly, providerPricing.CyberGhost.devices, "Long refund window helps reduce the risk of a low-cost purchase."],
+        ["IPVanish", providerPricing.IPVanish.longTerm, providerPricing.IPVanish.monthly, providerPricing.IPVanish.devices, "Low long-term rate and unlimited devices make it cost-effective for shared use."],
+        ["NordVPN", providerPricing.NordVPN.longTerm, providerPricing.NordVPN.monthly, providerPricing.NordVPN.devices, "Not the absolute cheapest, but often one of the strongest value plays in the premium-middle lane."],
+        ["Mullvad", providerPricing.Mullvad.monthly, providerPricing.Mullvad.monthly, providerPricing.Mullvad.devices, "A flat-price option for buyers who prefer no pricing games."],
+        ["Windscribe", providerPricing.Windscribe.longTerm, providerPricing.Windscribe.monthly, providerPricing.Windscribe.devices, "Custom plan flexibility can beat normal plans for very specific users."],
+      ],
+    }),
+    extraSections: [
+      {
+        eyebrow: "Cheap Does Not Mean Bad",
+        title: "How to separate good cheap VPNs from dangerous cheap VPNs",
+        paragraphs: [
+          "A low-cost VPN can still be excellent if the provider is transparent about billing, privacy, and device support. What makes a cheap VPN dangerous is usually not the low price itself, but the lack of clarity around how the service is funded, what compromises the user is accepting, and whether the provider behaves like a serious long-term business.",
+          "That is why the best cheap VPNs usually come from recognizable brands with clear refund policies and real support rather than from unknown apps making impossible promises. Cheap can be smart, but only when the buyer knows exactly what they are getting and what they are not.",
+        ],
+      },
+      {
+        eyebrow: "Where Cheap Plans Fail",
+        title: "The compromises that show up first on ultra-cheap services",
+        paragraphs: [
+          "The first place cheap VPNs often fail is consistency. A bargain plan might look fine on paper and then feel weak on hotel Wi-Fi, streaming services, or crowded evening server sessions. That kind of inconsistency creates a practical cost, because the user ends up paying with time and frustration instead of with extra subscription dollars.",
+          "The second failure point is transparency. If a service is unusually cheap and also vague about logging, audits, or app behavior, the safer move is often to spend a little more on a mainstream provider. Saving two dollars a month is rarely worth accepting a large trust gap.",
+        ],
+      },
+    ],
+  },
+  {
+    slug: "vpn-cost-for-business",
+    title: "Business VPN Cost 2026: Pricing for Teams & Companies",
+    h1: "How Much Does a Business VPN Cost in 2026?",
+    description: "Business VPN pricing guide for 2026 covering per-user costs, small-team budgeting, and the difference between consumer VPN math and managed business access.",
+    shortTopic: "business vpn cost",
+    shortAnswer: "Business VPN pricing usually starts around $6.99 to $12 per user per month on entry-level managed plans, then rises further when dedicated gateways, policy controls, or enterprise support are added.",
+    marketView: "Business VPN pricing behaves differently from consumer pricing because the buyer is paying for management, compliance, support, and team-level reliability rather than only for private browsing.",
+    angle: "This guide is written for founders, operations leads, and small IT teams trying to understand what business-grade access actually costs.",
+    comparisonView: "The right business comparison is per-user cost plus admin control plus deployment overhead, not just which vendor advertises the lowest seat price.",
+    hiddenCost: "The hidden cost in business VPN buying is downtime and management friction when a cheap plan is not really built for teams.",
+    bestFit: "This page best serves startups, remote agencies, hybrid teams, and growing companies moving beyond ad hoc consumer tools.",
+    bottomLine: "A business VPN is worth its price when it saves time, reduces support noise, and gives the company cleaner control over remote access.",
+    tableData: {
+      caption: "Business VPN pricing models in 2026",
+      headers: ["Service", "Indicative pricing", "Minimums", "What you get", "Best fit"],
+      rows: [
+        ["NordLayer (NordVPN Teams successor)", "$8/user/month annually on Lite, $11 on Core", "5 users minimum", "Managed team access, internet threat prevention, business controls", "Small to mid-sized teams that want a known business VPN brand"],
+        ["ExpressVPN for Teams", "Custom bulk licensing / save-as-you-scale positioning", "5 licenses minimum", "Fast deployment, admin controls, consumer-grade simplicity for small teams", "Small companies that want ExpressVPN familiarity rather than deep enterprise controls"],
+        ["Perimeter 81", "$8, $12, or $16 per user/month annually plus $40 per gateway", "Gateway and policy planning required", "Zero-trust style access, gateways, cloud management, deeper admin tooling", "Businesses that need more control and segmentation"],
+        ["Proton VPN for Business", "$6.99/user/month Essentials, $9.99/user/month Professional", "Simple per-user growth", "Dedicated servers, dedicated IP options, privacy-led business positioning", "Security-conscious remote teams and privacy-forward orgs"],
+      ],
+    },
+    extraSections: [
+      {
+        eyebrow: "Consumer vs Business",
+        title: "Why team pricing feels higher than personal VPN pricing",
+        paragraphs: [
+          "A business VPN is not just a personal VPN multiplied by the number of staff. Teams pay for centralized controls, easier provisioning, better visibility, and a cleaner way to handle remote access across employees, contractors, and changing devices. That operational layer is what makes business VPN pricing feel higher even when the raw connection technology is familiar.",
+          "For very small companies, a strong consumer VPN can sometimes bridge the gap for a while. But once device sprawl, onboarding, offboarding, or access policies begin to matter, the hidden labor cost of improvised setups often exceeds the apparent savings. That is why business pricing should always be compared with labor and risk, not only with consumer promo rates.",
+        ],
+      },
+      {
+        eyebrow: "Budgeting Advice",
+        title: "How teams should model VPN spend",
+        paragraphs: [
+          "The cleanest budget model is to calculate per-user cost, gateway or infrastructure add-ons, and the likely admin time required over a year. For a five-person company, that often reveals whether a lightweight business VPN is enough or whether the team really needs deeper zero-trust tooling. For larger companies, the control layer starts to matter even more than the raw seat cost.",
+          "Business buyers should also decide whether they are solving simple secure internet access, private app access, or both. The broader the access problem, the more likely it is that a dedicated business platform like Perimeter 81 or Proton VPN for Business makes better financial sense than stretching a consumer product beyond its intended role.",
+        ],
+      },
+    ],
+  },
+  {
+    slug: "free-vs-paid-vpn-cost",
+    title: "Free vs Paid VPN 2026: Is It Worth Paying?",
+    h1: "Free VPN vs Paid VPN: True Cost Comparison 2026",
+    description: "Honest free versus paid VPN comparison for 2026 covering privacy tradeoffs, speed limits, ads, data caps, and when paying is actually the smarter move.",
+    shortTopic: "free vs paid vpn cost",
+    shortAnswer: "Free VPNs reduce cash spend to zero, but paid VPNs usually reduce friction, uncertainty, and long-run compromise enough that regular users find them far better value.",
+    marketView: "This is one of the most commercially important cost questions because many first-time buyers are deciding whether they need to pay at all.",
+    angle: "The goal here is not to scare readers into paying. It is to show the real tradeoffs on both sides.",
+    comparisonView: "The correct comparison is zero cash today versus total usability and trust over time.",
+    hiddenCost: "The hidden cost of free VPNs often appears as slower speeds, fewer locations, limited streaming, ads, or weaker confidence in how the service is funded.",
+    bestFit: "This page is ideal for first-time VPN users and cautious shoppers who need an honest value decision.",
+    bottomLine: "A paid VPN is worth it when the user cares about consistency and trust often enough to justify a moderate yearly spend.",
+    tableData: {
+      caption: "Free VPNs to consider and free options to avoid in principle",
+      headers: ["Option", "Status", "Cost", "Why", "Verdict"],
+      rows: [
+        ["Proton VPN Free", "Recommended free option", "$0", "One of the strongest mainstream free tiers with no data cap and a serious privacy reputation", "Good if you truly need free access"],
+        ["Windscribe Free", "Conditional recommendation", "$0", "Useful for light users who understand the limits and server restrictions", "Good only for lighter use"],
+        ["Mobile-store free trials from paid VPNs", "Recommended trial route", "$0 upfront or refund-backed", "Often safer than unknown free VPN brands because the paid product is already established", "Best way to test before paying"],
+        ["Unknown ad-heavy free VPNs", "Avoid", "$0", "Funding model, logging clarity, and app quality are often weaker", "Usually not worth the uncertainty"],
+        ["Legacy/discontinued free options", "Avoid", "$0", "Support, updates, or service continuity may no longer exist", "Not suitable for ongoing use"],
+      ],
+    },
+    extraSections: [
+      {
+        eyebrow: "When Free Makes Sense",
+        title: "The narrow cases where a free VPN is actually enough",
+        paragraphs: [
+          "A free VPN can make sense when the user simply needs occasional privacy basics and fully understands the limitations. For example, a student testing VPN use for the first time or a user who only needs light browsing protection might reasonably start with Proton VPN Free. In those cases, paying immediately is not always necessary.",
+          "What matters is honesty about expectations. If the goal includes regular streaming, high-volume travel use, or smoother remote work, the free option often stops feeling practical very quickly. That is the point where a paid VPN starts to save time and frustration rather than just adding another subscription bill.",
+        ],
+      },
+      {
+        eyebrow: "When Paid Wins Fast",
+        title: "Why the true cost gap closes quickly",
+        paragraphs: [
+          "Paid VPNs usually win because they remove uncertainty. The user gets more server choice, better app support, clearer refund policies, and a service model that is easier to understand. Those advantages matter because they reduce the chance of wasted setup time, poor streaming results, or privacy questions that never get answered clearly.",
+          "Once a reader uses a VPN regularly, the yearly cost of a good paid plan often looks small compared with the convenience it adds. That is why the free-versus-paid debate is less about morality or hype and more about frequency of use. Regular users almost always experience the paid product as the cheaper option in practical terms.",
+        ],
+      },
+    ],
+  },
+  {
+    slug: "nordvpn-price",
+    title: "NordVPN Price 2026: All Plans, Deals & Hidden Costs",
+    h1: "NordVPN Price Guide 2026: What You'll Really Pay",
+    description: "NordVPN pricing guide for 2026 covering monthly plans, annual offers, long-term deals, renewals, and the extra costs buyers should watch before checkout.",
+    shortTopic: "NordVPN price",
+    shortAnswer: "NordVPN’s price in 2026 ranges from $12.99 per month on the Basic monthly plan to about $3.09 per month equivalent on the current long-term Basic offer, with higher tiers costing more as more extras are bundled in.",
+    marketView: "NordVPN remains one of the most important price pages in the VPN market because it sits near the premium-value middle ground that so many shoppers compare first.",
+    angle: "The point of this page is to show what buyers really pay, not just what the most attractive monthly-equivalent figure says.",
+    comparisonView: "A useful NordVPN price analysis compares tiers, protected months, and renewal pricing instead of stopping at the first long-term deal.",
+    hiddenCost: "The biggest hidden cost on NordVPN is often the gap between introductory pricing and renewal pricing, especially for buyers who never calendar a re-check before the first term ends.",
+    bestFit: "This page is strongest for readers already leaning toward NordVPN and wanting to understand whether the brand is worth the step up from cheaper alternatives.",
+    bottomLine: "NordVPN usually earns its price best when the buyer wants a polished mainstream VPN and plans to keep it beyond a temporary test period.",
+    tableData: {
+      caption: "NordVPN plan pricing in 2026",
+      headers: ["Plan", "1 Month", "1 Year / mid-term", "Best long-term offer", "Current renewal signal"],
+      rows: [
+        ["Basic", "$12.99", "$68.85 for 15 months ($4.59/mo avg)", "$83.43 for 27 months ($3.09/mo avg)", "$139.08/year renewal signal on current pricing page"],
+        ["Plus", "$13.99", "$82.35 for 15 months ($5.49/mo avg)", "$96.93 for 27 months ($3.59/mo avg)", "$179.88/year renewal signal"],
+        ["Complete", "$14.99", "$97.35 for 15 months ($6.49/mo avg)", "$134.73 for 27 months ($4.99/mo avg)", "$219.48/year renewal signal"],
+        ["Prime", "$16.59-$16.99", "Varies by offer", "$6.99/mo equivalent on current long-term pricing", "Higher renewal depending on region and offer"],
+      ],
+    },
+    extraSections: [
+      {
+        eyebrow: "Where NordVPN Sits",
+        title: "Why NordVPN is not usually the cheapest or the most expensive",
+        paragraphs: [
+          "NordVPN tends to occupy a very strategic pricing position. It is more affordable than some premium-led rivals on long-term plans, but it still charges enough to signal a polished mainstream product with a deeper feature set than the cheapest consumer options. That balance is exactly why it shows up in so many first-page comparisons.",
+          "For buyers, the practical consequence is that NordVPN often wins when they want a strong all-around service instead of the absolute lowest price. It becomes harder to justify only when the shopper cares almost entirely about maximum savings and is happy with a more aggressively discounted competitor.",
+        ],
+      },
+      {
+        eyebrow: "Hidden Costs",
+        title: "What NordVPN buyers should check before paying",
+        paragraphs: [
+          "The first thing to check is the renewal line. NordVPN’s current pricing pages make the introductory discounts very visible, but the long-term value depends on whether the user still finds the renewal fair. A plan that feels excellent in year one can feel much less attractive if the buyer forgets to revisit it before auto-renewal.",
+          "The second thing to check is tier fit. Some buyers only need the Basic plan, while others might genuinely value the password or identity extras in Plus, Complete, or Prime. The easiest way to overspend on NordVPN is to buy a bundle because it looks comprehensive even though the extra services would never actually be used.",
+        ],
+      },
+    ],
+  },
+];
+
+function buildExpandedCostPages() {
+  return expandedCostPagesRaw.map((item, index) => ({
+    route: `/vpn-costs/${item.slug}/`,
+    title: item.title,
+    metaTitle: item.title,
+    h1: item.h1,
+    description: item.description,
+    type: "article",
+    shortTopic: item.shortTopic,
+    kicker: "VPN Costs",
+    heroImage: ["assets/images/hero-vpn-pricing.svg", "assets/images/hero-review-lab.svg", "assets/images/hero-remote-shield.svg"][index % 3],
+    heroTone: "pricing",
+    parent: hubs[0],
+    stats: [
+      { label: "Pricing focus", value: item.shortTopic, note: "Built around high-intent cost questions." },
+      { label: "Updated", value: "April 2026", note: "Reviewed against official pricing and policy pages." },
+      { label: "Main buyer type", value: index === 2 ? "Teams & companies" : "Consumer VPN shoppers", note: "The page is structured around this purchase intent." },
+      { label: "Core value question", value: "Cost vs fit", note: "Price only matters when the service solves the real use case." },
+    ],
+    takeaways: [
+      item.shortAnswer,
+      "The best VPN cost page should show the billed total, the protected months, and the likely fit for the buyer.",
+      "Pricing becomes value only when the provider is still usable and trustworthy after the promo ends.",
+    ],
+    costFocus: "Billed total, plan length, and renewal clarity",
+    privacyFocus: "Whether the provider still looks credible at the advertised price",
+    useFocus: "How the pricing fits streaming, work, travel, privacy, or team needs",
+    fitFocus: "Which buyer profile each plan is actually for",
+    chartBars: [
+      { label: "Savings", value: "84/100" },
+      { label: "Transparency", value: "79/100" },
+      { label: "Fit", value: index === 2 ? "82/100" : "85/100" },
+      { label: "Trust", value: "80/100" },
+    ],
+    longSections: [...opportunitySections(item), ...item.extraSections],
+    faqs: opportunityFaqs(item),
+    tableData: typeof item.tableData === "function" ? item.tableData() : item.tableData,
+    contextLinks: [
+      ...contextLinksFor(index === 2 ? "business" : "vpnCosts"),
+      { route: "/vpn-costs/", label: "How Much Does a VPN Cost? Complete 2026 Pricing Guide", note: "Return to the main pricing hub." },
+    ].slice(0, 5),
   }));
 }
 
@@ -1244,43 +1573,133 @@ function buildToolPages() {
 const providerPricing = {
   NordVPN: {
     monthly: "$12.99/mo",
-    annual: "$68.85 yearly ($4.59/mo equivalent)",
-    longTerm: "$80.73 for 27 months ($2.99/mo equivalent)",
+    annual: "$68.85 for 15 months ($4.59/mo avg)",
+    longTerm: "$83.43 for 27 months ($3.09/mo avg)",
+    annualNumeric: 68.85,
+    annualMonths: 15,
+    longTermNumeric: 83.43,
+    longTermMonths: 27,
     devices: "10 devices",
     refund: "30-day refund window",
-    note: "Official NordVPN pricing and pricing explainer checked in late 2025 and reviewed for April 18, 2026 copy.",
+    freeTier: "No free tier",
+    bestFor: "Balanced premium value",
+    note: "Official NordVPN pricing page and NordVPN pricing explainer checked in April 2026.",
   },
   ExpressVPN: {
     monthly: "$12.99/mo Basic",
-    annual: "Yearly renewal varies by tier",
+    annual: "$99.95 for 15 months ($6.67/mo avg)",
     longTerm: "$97.72 for 28 months ($3.49/mo equivalent) on Basic",
+    annualNumeric: 99.95,
+    annualMonths: 15,
+    longTermNumeric: 97.72,
+    longTermMonths: 28,
     devices: "10 devices",
     refund: "30-day refund window",
-    note: "Official ExpressVPN order page snapshot indexed in 2026 shows Basic, Advanced, and Pro pricing.",
+    freeTier: "No free tier",
+    bestFor: "Travel and simplicity",
+    note: "Official ExpressVPN order pages and pricing help article checked in April 2026.",
   },
   Surfshark: {
     monthly: "$15.45/mo Starter",
-    annual: "12-month plans available by bundle",
+    annual: "$33.48 for 12 months ($2.79/mo avg)",
     longTerm: "$1.99/mo on the 24-month Starter plan",
+    annualNumeric: 33.48,
+    annualMonths: 12,
+    longTermNumeric: 47.76,
+    longTermMonths: 24,
     devices: "Unlimited devices",
     refund: "30-day refund window",
-    note: "Official Surfshark pricing and Surfshark pricing blog snapshot referenced in 2026.",
+    freeTier: "7-day mobile trial",
+    bestFor: "Cheap long-term household coverage",
+    note: "Official Surfshark pricing page and Surfshark plans explainer checked in April 2026.",
   },
   CyberGhost: {
     monthly: "$12.99/mo",
-    annual: "$41.94 every 6 months ($6.99/mo equivalent)",
+    annual: "$83.88 via two 6-month cycles ($6.99/mo)",
     longTerm: "$56.94 for 28 months ($2.03/mo equivalent)",
+    annualNumeric: 83.88,
+    annualMonths: 12,
+    longTermNumeric: 56.94,
+    longTermMonths: 28,
     devices: "7 devices",
-    refund: "45-day refund window",
+    refund: "14-day monthly / 45-day long-term",
+    freeTier: "No free tier",
+    bestFor: "Streaming on a budget",
     note: "Official CyberGhost pricing pages and deal pages checked in April 2026.",
+  },
+  "Private Internet Access": {
+    monthly: "$11.95/mo",
+    annual: "$39.95 for 12 months ($3.33/mo avg)",
+    longTerm: "$79.00 for 40 months ($1.98/mo avg)",
+    annualNumeric: 39.95,
+    annualMonths: 12,
+    longTermNumeric: 79,
+    longTermMonths: 40,
+    devices: "Unlimited devices",
+    refund: "30-day refund window",
+    freeTier: "No free tier",
+    bestFor: "Open-source and tweakable apps",
+    note: "Official Private Internet Access pricing pages checked in April 2026.",
   },
   IPVanish: {
     monthly: "$12.99/mo",
     annual: "$39.99 yearly ($3.33/mo equivalent)",
     longTerm: "$52.56 for 24 months ($2.19/mo equivalent)",
+    annualNumeric: 39.99,
+    annualMonths: 12,
+    longTermNumeric: 52.56,
+    longTermMonths: 24,
     devices: "Unlimited devices",
     refund: "30-day refund window",
+    freeTier: "No free tier",
+    bestFor: "Unlimited-device general use",
     note: "Public 2026 pricing checks align around $12.99 monthly, $3.33 annual, and $2.19 on the two-year term.",
+  },
+  Mullvad: {
+    monthly: "$5.77/mo equivalent (€5 flat rate)",
+    annual: "$69.24/year equivalent",
+    longTerm: "$138.48 over 24 months (same flat monthly rate)",
+    annualNumeric: 69.24,
+    annualMonths: 12,
+    longTermNumeric: 138.48,
+    longTermMonths: 24,
+    devices: "5 devices",
+    refund: "14-day refund window",
+    freeTier: "No free tier",
+    bestFor: "Privacy-first flat pricing",
+    note: "Official Mullvad pricing page checked in April 2026.",
+  },
+  ProtonVPN: {
+    monthly: "EUR 9.99/mo VPN Plus",
+    annual: "EUR 47.88/year (EUR 3.99/mo)",
+    longTerm: "EUR 71.76 for 24 months (EUR 2.99/mo)",
+    devices: "10 devices",
+    refund: "30-day refund window",
+    freeTier: "Yes, Proton Free",
+    bestFor: "Free tier and privacy-first ecosystem",
+    note: "Official Proton support pricing article checked in April 2026.",
+  },
+  "Atlas VPN": {
+    monthly: "Discontinued",
+    annual: "Discontinued",
+    longTerm: "Service closed in April 2024",
+    devices: "No longer sold",
+    refund: "Not available",
+    freeTier: "Service closed",
+    bestFor: "Legacy users only",
+    note: "Official Atlas VPN closure notice remains the current source in 2026.",
+  },
+  Windscribe: {
+    monthly: "$9.00/mo Pro",
+    annual: "$69/year ($5.75/mo)",
+    longTerm: "Build-a-plan from $3/mo minimum",
+    annualNumeric: 69,
+    annualMonths: 12,
+    devices: "Unlimited devices",
+    refund: "3-day refund window on monthly plans in many cases",
+    freeTier: "Yes, limited free tier",
+    bestFor: "Flexible custom plans",
+    note: "Official Windscribe upgrade pages checked in April 2026.",
   },
 };
 
@@ -1299,13 +1718,73 @@ function pricingOverviewTable(title, names) {
   };
 }
 
+function popularVpnComparisonTable() {
+  return {
+    caption: "Average VPN cost per month in 2026 for popular VPNs in the U.S.",
+    headers: ["VPN", "Monthly Plan", "Annual Plan", "2-Year Plan", "Free Tier", "Best For"],
+    rows: topTenUsVpnNames.map((name) => {
+      const item = providerPricing[name];
+      return [name, item.monthly, item.annual, item.longTerm, item.freeTier, item.bestFor];
+    }),
+  };
+}
+
+function vpnSavingsRows(names) {
+  return names.map((name) => {
+    const item = providerPricing[name];
+    if (!item.annualNumeric || !item.longTermNumeric) return [name, "See provider page", "See provider page", "Varies by offer"];
+    const monthlyYear = 12 * Number(item.monthly.replace(/[^0-9.]/g, ""));
+    const annualSavings = Math.max(0, monthlyYear - item.annualNumeric);
+    const longSavings = Math.max(0, monthlyYear - (item.longTermNumeric / item.longTermMonths) * 12);
+    return [
+      name,
+      money(item.annualNumeric),
+      money((item.longTermNumeric / item.longTermMonths) * 12),
+      `${money(annualSavings)} / ${money(longSavings)} annually`,
+    ];
+  });
+}
+
+function vpnUseCaseCostTable() {
+  return {
+    caption: "VPN cost by use case in 2026",
+    headers: ["Use Case", "Recommended VPN", "Monthly Cost", "Why"],
+    rows: [
+      ["Best VPN for Netflix", "NordVPN", "$3.09/mo on the 27-month Basic deal", "Strong mainstream streaming track record with a better long-term rate than many premium rivals."],
+      ["Best VPN for Gaming", "Surfshark", "$1.99/mo on the 24-month Starter deal", "Aggressive long-term pricing and unlimited-device flexibility for mixed console and PC households."],
+      ["Best VPN for Remote Work", "ExpressVPN", "$3.49/mo on the 28-month Basic deal", "Consistent apps and polished setup make it easier for non-technical remote workers."],
+      ["Best VPN for Travel", "ExpressVPN", "$12.99/mo month to month", "Monthly flexibility is useful for short travel windows and hotel Wi-Fi protection."],
+      ["Best VPN for Privacy", "Mullvad", "$5.77/mo equivalent", "Flat-rate pricing and a privacy-first positioning appeal to readers who dislike long lock-ins."],
+      ["Best cheap VPN", "CyberGhost", "$2.03/mo on the 28-month deal", "One of the lowest mainstream long-term prices with a 45-day money-back period."],
+      ["Best free VPN", "ProtonVPN", "$0", "The strongest mainstream free tier for people who genuinely need a no-cost option."],
+    ],
+  };
+}
+
+function quickAnswerPricingTable() {
+  return {
+    caption: "How much does a VPN cost? Quick answer",
+    headers: ["Tier", "Typical Cost", "What it usually means"],
+    rows: [
+      ["Free VPNs", "$0", "Lowest cash cost, but with the biggest performance and trust compromises."],
+      ["Budget", "$2-4/mo", "Long-term promos from mainstream providers such as Surfshark, CyberGhost, PIA, and IPVanish."],
+      ["Mid-range", "$4-7/mo", "Annual plans or value-focused premium tiers with fewer compromises."],
+      ["Premium", "$8-13/mo", "True month-to-month plans or higher-end consumer subscriptions."],
+      ["Business", "$5-15/user/mo", "Per-user pricing for team management, dedicated gateways, or zero-trust controls."],
+    ],
+  };
+}
+
 function contextLinksFor(kind) {
   const sets = {
     vpnCosts: [
+      { route: "/vpn-costs/", label: "How Much Does a VPN Cost? Complete 2026 Pricing Guide", note: "Start with the main pricing hub for the full market view." },
+      { route: "/vpn-costs/vpn-cost-per-year/", label: "VPN Cost Per Year 2026", note: "Annual pricing math and long-term savings compared." },
+      { route: "/vpn-costs/cheapest-vpn-2026/", label: "Cheapest VPN 2026", note: "See which low-cost VPNs still look credible." },
+      { route: "/vpn-costs/free-vs-paid-vpn-cost/", label: "Free vs Paid VPN 2026", note: "Understand when paying is actually worth it." },
+      { route: "/vpn-costs/nordvpn-price/", label: "NordVPN Price Guide 2026", note: "Brand-level price breakdown for one of the most searched VPNs." },
       { route: "/vpn-costs/average-vpn-cost-per-month/", label: "Average VPN Cost Per Month", note: "Baseline pricing context for mainstream buyers." },
-      { route: "/vpn-costs/cheapest-vpns/", label: "Cheapest VPNs", note: "See where low-cost plans still hold up." },
       { route: "/vpn-costs/best-annual-vpn-plans/", label: "Best Annual VPN Plans", note: "Useful when long-term value matters more than month-to-month flexibility." },
-      { route: "/vpn-costs/vpn-subscription-comparison/", label: "VPN Subscription Comparison", note: "Compare billing structures, renewals, and fit." },
       { route: "/tools/vpn-cost-calculator/", label: "VPN Cost Calculator", note: "Model the annual math with your own budget assumptions." },
     ],
     business: [
@@ -1836,6 +2315,7 @@ function buildSearchConsolePages() {
 
 const allArticlePages = [
   ...buildCostPages(),
+  ...buildExpandedCostPages(),
   ...buildReviewPages(),
   ...buildUseCasePages(),
   ...buildCyberPages(),
@@ -1865,7 +2345,189 @@ function hubCards(clusterRoute) {
     }));
 }
 
+function vpnCostsHubFaqs() {
+  return [
+    {
+      q: "How much does a VPN cost per month?",
+      a: "For mainstream VPN brands in 2026, the true month-to-month price usually lands between about $11.95 and $15.45. The cheaper figures you see in ads are usually long-term equivalents based on annual or multi-year billing, not true monthly checkout pricing. That distinction matters because it changes both the upfront spend and the flexibility of the purchase. Readers who want the lowest risk usually test a provider through its refund window instead of staying on the expensive monthly rate long term.",
+    },
+    {
+      q: "What is the cheapest VPN in 2026?",
+      a: "Among recognizable mainstream brands, CyberGhost, Surfshark, Private Internet Access, and IPVanish are usually the most aggressive on long-term headline pricing. The exact cheapest offer can move during promotions, but a credible low-cost VPN normally sits somewhere between about $1.98 and $2.19 per month equivalent on the best long-term deals. That said, the cheapest worthwhile VPN is not always the one with the smallest number in a hero banner. Device limits, refund windows, and trust signals still matter.",
+    },
+    {
+      q: "Are free VPNs safe to use?",
+      a: "Some are safer than others, but free VPNs as a category come with more tradeoffs than paid ones. The strongest mainstream example is Proton VPN Free, which is useful when a user genuinely needs no-cost privacy basics. Many other free VPNs trade speed, server choice, streaming support, or transparency for the zero-dollar price. In practice, most regular users who care about reliability eventually do better with a paid VPN and a real refund policy.",
+    },
+    {
+      q: "Is NordVPN worth the price?",
+      a: "For many buyers, yes, especially when the long-term Basic plan is priced well below the true monthly rate. NordVPN tends to sit in the middle ground between premium polish and value, which is why it is often a default shortlist option. It is less compelling if a reader only wants a very short subscription window, because the monthly plan is much more expensive than its long-term offers. It becomes strongest when the user expects to keep the service for a year or more.",
+    },
+    {
+      q: "How much does a VPN cost per year?",
+      a: "A mainstream consumer VPN often costs between roughly $33 and $100 per year on promoted annual terms, depending on brand and the number of bonus months attached. Some providers like CyberGhost use six-month billing instead of a classic annual plan, while others like Mullvad keep a flat monthly rate all year long. The right way to think about yearly cost is to compare the billed total, the total protected months, and the renewal language together. That gives you a more realistic view than just looking at a monthly-equivalent figure.",
+    },
+    {
+      q: "Do VPNs slow down your internet?",
+      a: "Yes, but usually by less than many first-time buyers fear when they choose a good provider and a nearby server. Any VPN adds some overhead because your traffic is encrypted and routed through another server, but the practical slowdown varies a lot by provider quality, server congestion, and the protocol being used. For routine browsing, streaming, and remote work, a strong mainstream VPN should still feel smooth most of the time. The bigger problem is often inconsistency on poor services, not the existence of a speed hit itself.",
+    },
+    {
+      q: "Can I get a VPN for free?",
+      a: "Yes, but free access usually comes with limits or compromises. Proton VPN offers the strongest mainstream free plan for users who want a no-cost option without data caps, while some other services only offer free trials or app-store-based mobile trials. If the goal is everyday streaming, travel, or work use, free access often stops being enough pretty quickly. That is why many shoppers use a refund-backed paid plan as their real-world trial instead.",
+    },
+    {
+      q: "What VPN do most Americans use?",
+      a: "No public source publishes a definitive national leaderboard that covers every U.S. VPN customer, but the most visible consumer brands in the American market are typically NordVPN, ExpressVPN, Surfshark, CyberGhost, Private Internet Access, and Proton VPN. Those names appear most often in pricing pages, reviews, and mainstream consumer comparisons because they spend heavily on both distribution and product positioning. In practical terms, these are the brands most U.S. shoppers are likely to compare first. The better question is not which one most Americans use, but which one matches the reader’s own budget and habits best.",
+    },
+  ];
+}
+
+function vpnCostsCalculatorWidget() {
+  const pricingData = {
+    NordVPN: { monthly: 12.99, annualTotal: 68.85, annualMonths: 15, twoYearTotal: 83.43, twoYearMonths: 27 },
+    ExpressVPN: { monthly: 12.99, annualTotal: 99.95, annualMonths: 15, twoYearTotal: 97.72, twoYearMonths: 28 },
+    Surfshark: { monthly: 15.45, annualTotal: 33.48, annualMonths: 12, twoYearTotal: 47.76, twoYearMonths: 24 },
+    CyberGhost: { monthly: 12.99, annualTotal: 83.88, annualMonths: 12, twoYearTotal: 56.94, twoYearMonths: 28 },
+    "Private Internet Access": { monthly: 11.95, annualTotal: 39.95, annualMonths: 12, twoYearTotal: 79, twoYearMonths: 40 },
+    IPVanish: { monthly: 12.99, annualTotal: 39.99, annualMonths: 12, twoYearTotal: 52.56, twoYearMonths: 24 },
+    Mullvad: { monthly: 5.77, annualTotal: 69.24, annualMonths: 12, twoYearTotal: 138.48, twoYearMonths: 24 },
+  };
+
+  return `
+    <section class="panel calculator-panel" data-calculator="vpn-plan-savings" data-pricing='${escapeAttr(JSON.stringify(pricingData))}'>
+      <div class="section-heading">
+        <span class="eyebrow">Annual Savings Calculator</span>
+        <h2>VPN Cost by Plan Length</h2>
+      </div>
+      <form class="tool-form">
+        <label>VPN selected
+          <select name="provider">
+            ${Object.keys(pricingData)
+              .map((name) => `<option value="${escapeAttr(name)}">${escapeHtml(name)}</option>`)
+              .join("")}
+          </select>
+        </label>
+        <label>Plan length
+          <select name="planLength">
+            <option value="monthly">Monthly</option>
+            <option value="annual">Annual</option>
+            <option value="twoYear">2-Year / Best long-term</option>
+          </select>
+        </label>
+        <button type="submit" class="button button--primary">Calculate</button>
+      </form>
+      <div class="calculator-result" aria-live="polite"></div>
+      <p class="calculator-helper">Long-term savings usually land around 60-70% versus sticking with true month-to-month billing on the same mainstream provider.</p>
+    </section>`;
+}
+
+function vpnCostsHubBody(fromFile) {
+  const newCostRoutes = [
+    "/vpn-costs/vpn-cost-per-year/",
+    "/vpn-costs/cheapest-vpn-2026/",
+    "/vpn-costs/vpn-cost-for-business/",
+    "/vpn-costs/free-vs-paid-vpn-cost/",
+    "/vpn-costs/nordvpn-price/",
+  ];
+
+  const featureCards = newCostRoutes
+    .map((route) => allArticlePages.find((page) => page.route === route))
+    .filter(Boolean)
+    .map(
+      (page) => `
+        <a class="related-card related-card--large" href="${escapeAttr(localPageHref(fromFile, page.route))}">
+          <span>${escapeHtml(page.kicker)}</span>
+          <strong>${escapeHtml(page.title)}</strong>
+          <p>${escapeHtml(page.description)}</p>
+        </a>`,
+    )
+    .join("");
+
+  return `
+    ${renderStats([
+      { label: "Search Console momentum", value: "+25,100%", note: "This hub is being expanded to capture growing pricing demand." },
+      { label: "Consumer price band", value: "$2-$13/mo", note: "The mainstream market spans budget promos through premium month-to-month plans." },
+      { label: "Typical annual savings", value: "60-70%", note: "Long-term plans normally save far more than true monthly billing." },
+      { label: "Audience fit", value: "USA-first pricing", note: "Built to answer the strongest U.S. cost and value questions." },
+    ])}
+    <section class="panel intro-panel">
+      <div class="section-heading">
+        <span class="eyebrow">How Much Does a VPN Cost?</span>
+        <h2>Quick answer</h2>
+      </div>
+      <p class="lede">In 2026, a VPN usually costs between about $11.95 and $15.45 if you pay month to month, or between roughly $1.98 and $6.99 per month equivalent if you choose a strong annual or multi-year deal. The exact number depends on whether the provider is budget-led, premium-led, or business-focused. The biggest mistake is comparing monthly-equivalent ads with true monthly checkout prices as if they were the same thing.</p>
+      ${renderTable(quickAnswerPricingTable())}
+      <p>Across the consumer market, annual and multi-year plans usually cut the effective monthly price by around 60% to 70% compared with paying every month. That is why most heavy VPN users buy long term and treat the refund period as their real trial window. Monthly billing still has a place, but mostly for short travel, testing, or temporary work needs.</p>
+    </section>
+    <section class="panel">
+      <div class="section-heading">
+        <span class="eyebrow">Average VPN Cost Per Month in 2026</span>
+        <h2>Popular U.S. VPN pricing compared</h2>
+      </div>
+      <p>The table below shows how pricing behaves across ten of the best-known VPN brands in the American market. One pattern shows up quickly: mainstream providers tend to charge very similar month-to-month prices, but their annual and long-term offers create big separation on value. That is where budget brands, premium brands, and privacy-first flat-rate services start to feel very different.</p>
+      ${renderTable(popularVpnComparisonTable())}
+      <p>Atlas VPN is included because it still appears in a lot of legacy comparison queries, but it is no longer an active product in 2026. Proton VPN remains notable because it still offers one of the strongest true free tiers. Mullvad is the outlier on price structure, since it does not try to lure buyers with a deep long-term discount and instead keeps a flat monthly rate.</p>
+    </section>
+    ${vpnCostsCalculatorWidget()}
+    <section class="panel">
+      <div class="section-heading">
+        <span class="eyebrow">Savings Table</span>
+        <h2>How much annual and long-term billing can save</h2>
+      </div>
+      <p>The clearest savings story shows up when you compare one year of true monthly billing against one year of annual or best-term pricing. This is where many shoppers realize that the “cheap VPN” conversation is often less about the brand and more about the billing structure they choose.</p>
+      ${renderTable({
+        caption: "Estimated yearly savings versus paying monthly",
+        headers: ["VPN", "Annual billed cost", "Best long-term annualized cost", "Savings vs monthly"],
+        rows: vpnSavingsRows(["NordVPN", "ExpressVPN", "Surfshark", "CyberGhost", "Private Internet Access", "IPVanish", "Mullvad"]),
+      })}
+    </section>
+    <section class="panel">
+      <div class="section-heading">
+        <span class="eyebrow">VPN Cost by Use Case</span>
+        <h2>What users usually pay for different goals</h2>
+      </div>
+      <p>The right VPN price depends heavily on why the buyer wants one. A traveler may sensibly pay a short-term premium for flexibility, while a household that streams every week usually gets the best value from a long-term plan. Privacy-first users might also decide that a flat-priced service like Mullvad is worth more than a deep discount because it removes renewal games from the equation.</p>
+      ${renderTable(vpnUseCaseCostTable())}
+    </section>
+    <section class="panel">
+      <div class="section-heading">
+        <span class="eyebrow">Is a VPN Worth the Cost in 2026?</span>
+        <h2>Comparing VPN spend with real-world privacy and fraud risk</h2>
+      </div>
+      <p>For most individuals, the real question is not whether a VPN costs money. It is whether the annual spend is small enough relative to the problems it helps reduce. A mainstream paid VPN often costs less than a streaming add-on or one month of identity-protection software, while the fallout from account compromise, insecure travel Wi-Fi, or repeated privacy exposure can become much more expensive than the subscription itself.</p>
+      ${renderTable({
+        caption: "Break-even lens: VPN spend versus common digital-risk costs",
+        headers: ["Comparison", "Typical cost", "What it means"],
+        rows: [
+          ["Budget VPN year", "$33-$60", "Often cheaper than a single minor fraud headache or an annual password-manager upgrade."],
+          ["Premium VPN year", "$70-$100", "Still moderate relative to the value of secure travel, streaming, and remote-work protection."],
+          ["Identity-theft remediation", "$500-$1,500+ out-of-pocket plus time", "The non-financial hassle is often larger than the direct expense."],
+          ["Lost workday from insecure access issues", "$150-$500+ in productivity", "A more reliable VPN can pay for itself surprisingly quickly for freelancers and remote workers."],
+        ],
+      })}
+      <h2>When not to pay for a VPN</h2>
+      ${renderBulletList([
+        "Do not pay if you know you will not actually use the service beyond the first curious week.",
+        "Do not lock into a multi-year plan if you only need secure browsing for one short trip and no refund period fits your timing.",
+        "Do not buy a premium bundle just because it includes extra identity tools you would never otherwise use.",
+      ])}
+    </section>
+    <section class="panel">
+      <div class="section-heading">
+        <span class="eyebrow">Cluster Expansion</span>
+        <h2>Price guides to explore next</h2>
+      </div>
+      <div class="related-grid">
+        ${featureCards}
+      </div>
+    </section>
+    ${renderFaqs(vpnCostsHubFaqs())}
+    ${researchBox()}
+    ${sourcesBox({ shortTopic: "VPN pricing in the United States" })}`;
+}
+
 function hubBody(page, fromFile) {
+  if (page.route === "/vpn-costs/") return vpnCostsHubBody(fromFile);
   const cards = hubCards(page.route);
   return `
     ${renderStats([
@@ -2008,7 +2670,6 @@ function utilityBody(page, fromFile) {
           <article><h2>Coverage</h2><p>Consumer VPNs, online privacy, subscription costs, and personal cybersecurity for U.S. audiences.</p></article>
         </div>
       </section>
-      ${authorBox()}
       ${researchBox()}`;
   }
 
@@ -2083,8 +2744,7 @@ function utilityBody(page, fromFile) {
       <p class="lede">${escapeHtml(page.description)}</p>
       ${paragraphs.map((paragraph) => `<p>${escapeHtml(paragraph)}</p>`).join("")}
     </section>
-    ${researchBox()}
-    ${authorBox()}`;
+    ${researchBox()}`;
 }
 
 const homePage = {
@@ -2145,8 +2805,8 @@ function homeBody(fromFile) {
       </div>
       <div class="related-grid">
         ${[
-          "/vpn-costs/average-vpn-cost-per-month/",
-          "/vpn-costs/cheapest-vpns/",
+          "/vpn-costs/",
+          "/vpn-costs/cheapest-vpn-2026/",
           "/vpn-reviews/nordvpn-review/",
           "/vpn-use-cases/best-vpn-for-netflix/",
           "/comparisons/nordvpn-vs-expressvpn/",
@@ -2177,7 +2837,6 @@ function homeBody(fromFile) {
       ]),
     })}
     ${researchBox()}
-    ${authorBox()}
     ${sourcesBox({ shortTopic: "VPN pricing and personal cybersecurity" })}`;
 }
 
@@ -2286,19 +2945,12 @@ async function writePage(page) {
 }
 
 function redirectsContent() {
-  const pageRedirects = pages
-    .filter((page) => page.route !== "/")
-    .flatMap((page) => {
-      const cleanRoute = page.route.slice(0, -1);
-      return [`${cleanRoute}/index.html ${cleanRoute} 301`, `${page.route} ${cleanRoute} 301`];
-    });
   return [
-    "http://vpncostguide.com/* https://vpncostguide.com/:splat 301",
-    "http://www.vpncostguide.com/* https://vpncostguide.com/:splat 301",
-    "https://www.vpncostguide.com/* https://vpncostguide.com/:splat 301",
-    "/index.html / 301",
-    ...pageRedirects,
-    "/404.html /404 404",
+    "http://vpncostguide.com/* https://vpncostguide.com/:splat 301!",
+    "http://www.vpncostguide.com/* https://vpncostguide.com/:splat 301!",
+    "https://www.vpncostguide.com/* https://vpncostguide.com/:splat 301!",
+    "/index.html / 301!",
+    "/index / / 301!",
   ].join("\n");
 }
 

@@ -191,6 +191,41 @@ function setupCalculators() {
         return;
       }
 
+      if (type === "vpn-plan-savings") {
+        let pricing = {};
+        try {
+          pricing = JSON.parse(wrapper.dataset.pricing || "{}");
+        } catch {
+          pricing = {};
+        }
+
+        const provider = String(data.get("provider") || "");
+        const planLength = String(data.get("planLength") || "monthly");
+        const plan = pricing[provider];
+        if (!plan) {
+          renderResult(result, [{ label: "Status", value: "Pricing data unavailable for this provider." }]);
+          return;
+        }
+
+        const monthlyPrice = Number(plan.monthly || 0);
+        const selectionMap = {
+          monthly: { total: monthlyPrice, months: 1, label: "Selected plan total" },
+          annual: { total: Number(plan.annualTotal || 0), months: Number(plan.annualMonths || 12), label: "Annual billed total" },
+          twoYear: { total: Number(plan.twoYearTotal || 0), months: Number(plan.twoYearMonths || 24), label: "Long-term billed total" },
+        };
+        const selected = selectionMap[planLength] || selectionMap.monthly;
+        const monthlyEquivalent = selected.total / Math.max(1, selected.months);
+        const monthlyRouteCost = monthlyPrice * selected.months;
+        const savings = Math.max(0, monthlyRouteCost - selected.total);
+
+        renderResult(result, [
+          { label: selected.label, value: money(selected.total) },
+          { label: "Monthly equivalent", value: money(monthlyEquivalent) },
+          { label: "Savings vs monthly", value: money(savings) },
+        ]);
+        return;
+      }
+
       if (type === "password") {
         const password = String(data.get("password") || "");
         let score = 0;

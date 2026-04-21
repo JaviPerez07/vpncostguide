@@ -1,7 +1,7 @@
 # VPN Cost Guide Walkthrough
 
 - Domain: https://vpncostguide.com
-- Pages generated: 97
+- Pages generated: 102
 - Architecture: extensionless routes with folder-based output, root-level stylesheet and script copies, and a single shared asset layer.
 - Design direction: dark premium UI using navy, black, cyan, and green with large hero visuals, charts, cards, and trust sections.
 - Compliance goals: no public .html canonicals, no www canonicals, no http URLs, no query-indexable search paths, no ad placeholders, static JSON-LD in page head only.
