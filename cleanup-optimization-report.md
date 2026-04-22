@@ -1,0 +1,163 @@
+# VPN Cost Guide Cleanup Report
+
+## Summary
+
+- Date: 2026-04-22
+- Public pages regenerated from `scripts/generate-site.mjs`: 103
+- Modified paths currently in the working tree: 111
+- New public page created: `affiliate-disclosure/index.html`
+
+## Changes Applied
+
+- Replaced the visible individual author box with the editorial-team pattern across content pages.
+- Replaced the editorial note text with the quarterly-review version requested.
+- Removed the fake phone number from the footer and contact page.
+- Replaced the legacy contact email with `contact@vpncostguide.com`.
+- Added `Affiliate Disclosure` to the footer editorial links.
+- Added an affiliate disclosure banner near the top of every review and comparison page.
+- Switched public-facing geography from U.S. + U.K. messaging to U.S.-only sitewide copy.
+- Removed monetization and Search Console signaling phrases from home and hub copy.
+- Updated the home stats strip to the cleaner U.S.-focused set.
+- Simplified scorecards so the repeated progress percentages no longer appear.
+- Added unique review meta descriptions plus `<!-- VERIFICAR PRECIO VIGENTE -->` comments.
+- Preserved the existing JSON-LD structure while updating generated page content through the site generator.
+
+## Counts
+
+- Editorial-team blocks rendered on content pages: 101
+- Direct `contact@vpncostguide.com` references rendered: 106
+- Affiliate disclosure banners rendered: 24
+- Review pages flagged with `VERIFICAR PRECIO VIGENTE`: 10
+- Local navigation audit issues after regeneration: 0
+- Search Console audit issues after regeneration: 0
+- Local JSON-LD parse failures found: 0
+
+## Manual Review Needed
+
+- Review live pricing figures on all review pages flagged with `<!-- VERIFICAR PRECIO VIGENTE -->`:
+  - `vpn-reviews/nordvpn-review/index.html`
+  - `vpn-reviews/expressvpn-review/index.html`
+  - `vpn-reviews/surfshark-review/index.html`
+  - `vpn-reviews/cyberghost-review/index.html`
+  - `vpn-reviews/protonvpn-review/index.html`
+  - `vpn-reviews/pia-review/index.html`
+  - `vpn-reviews/ipvanish-review/index.html`
+  - `vpn-reviews/atlas-vpn-review/index.html`
+  - `vpn-reviews/mullvad-review/index.html`
+  - `vpn-reviews/windscribe-review/index.html`
+- Confirm whether the `vpn-cost-by-country` page should stay international or be narrowed further to U.S.-only framing.
+- Review the generated legal and policy copy before publication if you want more brand-specific wording.
+
+## Modified Paths
+
+- `404.html`
+- `404/index.html`
+- `about/index.html`
+- `affiliate-disclosure/index.html`
+- `assets/styles.css`
+- `comparisons/best-vpn-by-price/index.html`
+- `comparisons/best-vpn-by-privacy/index.html`
+- `comparisons/best-vpn-by-speed/index.html`
+- `comparisons/expressvpn-vs-cyberghost/index.html`
+- `comparisons/free-vpn-vs-paid-vpn/index.html`
+- `comparisons/index.html`
+- `comparisons/nordvpn-vs-expressvpn/index.html`
+- `comparisons/protonvpn-vs-mullvad/index.html`
+- `comparisons/surfshark-vs-nordvpn/index.html`
+- `comparisons/vpn-vs-antivirus/index.html`
+- `comparisons/vpn-vs-proxy/index.html`
+- `contact/index.html`
+- `cookie-policy/index.html`
+- `cybersecurity-guides/antivirus-costs/index.html`
+- `cybersecurity-guides/cybersecurity-checklist/index.html`
+- `cybersecurity-guides/how-to-stay-safe-on-public-wifi/index.html`
+- `cybersecurity-guides/how-vpns-work/index.html`
+- `cybersecurity-guides/identity-theft-protection-costs/index.html`
+- `cybersecurity-guides/index.html`
+- `cybersecurity-guides/online-privacy-guide/index.html`
+- `cybersecurity-guides/password-managers-guide/index.html`
+- `cybersecurity-guides/phishing-protection-guide/index.html`
+- `cybersecurity-guides/safe-browsing-tips/index.html`
+- `cybersecurity-guides/two-factor-authentication-guide/index.html`
+- `cybersecurity-guides/vpn-logging-policies-explained/index.html`
+- `cybersecurity-guides/vpn-vs-antivirus/index.html`
+- `cybersecurity-guides/vpn-vs-proxy/index.html`
+- `cybersecurity-guides/vpn-vs-tor/index.html`
+- `cybersecurity-guides/what-is-a-vpn/index.html`
+- `disclaimer/index.html`
+- `editorial-policy/index.html`
+- `how-we-research/index.html`
+- `index.html`
+- `local-preview-report.md`
+- `pages/business-vpn-cost/index.html`
+- `pages/cheapest-vpn-2025/index.html`
+- `pages/enterprise-vpn-cost/index.html`
+- `pages/expressvpn-vs-surfshark-cost/index.html`
+- `pages/free-vs-paid-vpn/index.html`
+- `pages/how-much-does-vpn-cost/index.html`
+- `pages/nordvpn-vs-expressvpn-cost/index.html`
+- `pages/nordvpn-vs-surfshark-cost/index.html`
+- `pages/vpn-cost-by-country/index.html`
+- `pages/vpn-cost-per-month/index.html`
+- `pages/vpn-cost-per-user/index.html`
+- `pages/vpn-cost-worth-it/index.html`
+- `pages/vpn-for-gaming-cost/index.html`
+- `pages/vpn-for-remote-work/index.html`
+- `pages/vpn-for-small-business/index.html`
+- `pages/vpn-for-streaming-cost/index.html`
+- `pages/vpn-for-travel-cost/index.html`
+- `pages/vpn-free-trial-guide/index.html`
+- `pages/vpn-price-comparison/index.html`
+- `pages/vpn-pricing-guide/index.html`
+- `privacy-policy/index.html`
+- `scripts/generate-site.mjs`
+- `search_console_audit.md`
+- `sitemap.xml`
+- `sitemap/index.html`
+- `styles.css`
+- `terms/index.html`
+- `tools/annual-savings-calculator/index.html`
+- `tools/cybersecurity-budget-calculator/index.html`
+- `tools/data-breach-risk-quiz/index.html`
+- `tools/index.html`
+- `tools/password-strength-checker/index.html`
+- `tools/vpn-cost-calculator/index.html`
+- `vpn-costs/average-vpn-cost-per-month/index.html`
+- `vpn-costs/best-annual-vpn-plans/index.html`
+- `vpn-costs/best-vpns-under-5/index.html`
+- `vpn-costs/business-vpn-costs/index.html`
+- `vpn-costs/cheapest-vpn-2026/index.html`
+- `vpn-costs/cheapest-vpns/index.html`
+- `vpn-costs/family-vpn-plans/index.html`
+- `vpn-costs/free-vpn-vs-paid-vpn/index.html`
+- `vpn-costs/free-vs-paid-vpn-cost/index.html`
+- `vpn-costs/index.html`
+- `vpn-costs/nordvpn-price/index.html`
+- `vpn-costs/vpn-cost-for-business/index.html`
+- `vpn-costs/vpn-cost-per-year/index.html`
+- `vpn-costs/vpn-subscription-comparison/index.html`
+- `vpn-reviews/atlas-vpn-review/index.html`
+- `vpn-reviews/cyberghost-review/index.html`
+- `vpn-reviews/expressvpn-review/index.html`
+- `vpn-reviews/index.html`
+- `vpn-reviews/ipvanish-review/index.html`
+- `vpn-reviews/mullvad-review/index.html`
+- `vpn-reviews/nordvpn-review/index.html`
+- `vpn-reviews/pia-review/index.html`
+- `vpn-reviews/protonvpn-review/index.html`
+- `vpn-reviews/surfshark-review/index.html`
+- `vpn-reviews/windscribe-review/index.html`
+- `vpn-use-cases/best-vpn-for-android/index.html`
+- `vpn-use-cases/best-vpn-for-gaming/index.html`
+- `vpn-use-cases/best-vpn-for-iphone/index.html`
+- `vpn-use-cases/best-vpn-for-mac/index.html`
+- `vpn-use-cases/best-vpn-for-netflix/index.html`
+- `vpn-use-cases/best-vpn-for-public-wifi/index.html`
+- `vpn-use-cases/best-vpn-for-remote-work/index.html`
+- `vpn-use-cases/best-vpn-for-small-businesses/index.html`
+- `vpn-use-cases/best-vpn-for-students/index.html`
+- `vpn-use-cases/best-vpn-for-torrenting/index.html`
+- `vpn-use-cases/best-vpn-for-travel/index.html`
+- `vpn-use-cases/best-vpn-for-windows/index.html`
+- `vpn-use-cases/index.html`
+- `walkthrough.md`

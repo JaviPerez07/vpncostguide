@@ -10,23 +10,23 @@ const adsenseScript = `<script async src="https://pagead2.googlesyndication.com/
 const site = {
   brand,
   domain,
-  email: "focuslocalaiagency@gmail.com",
-  phone: "+1 (202) 555-0148",
+  email: "contact@vpncostguide.com",
+  phone: "",
   tagline:
-    "Premium VPN pricing, privacy, streaming, cybersecurity, and subscription planning guides for U.S. and U.K. readers.",
+    "Premium VPN pricing, privacy, streaming, cybersecurity, and subscription planning guides for U.S. readers.",
   description:
-    "VPN Cost Guide helps readers in the United States and the United Kingdom compare VPN pricing, privacy tradeoffs, streaming access, subscription terms, and personal cybersecurity tools with premium editorial research.",
+    "VPN Cost Guide helps readers in the United States compare VPN pricing, privacy tradeoffs, streaming access, subscription terms, and personal cybersecurity tools with premium editorial research.",
   organization: {
     name: "VPN Cost Guide Editorial Team",
     url: domain,
     logo: `${domain}/assets/icons/logo.svg`,
   },
   author: {
-    name: "Alex Turner",
-    credentials: "VPN Security Researcher",
-    role: "Lead VPN Security Researcher",
-    initials: "AT",
-    bio: "Alex covers consumer and business VPN pricing, online privacy controls, secure browsing habits, and remote-work security for readers in the United States and the United Kingdom. He focuses on translating pricing pages, renewal terms, and privacy claims into practical subscription decisions.",
+    name: "VPN Cost Guide Editorial Team",
+    credentials: "Editorial Team",
+    role: "Editorial Team",
+    initials: "VG",
+    bio: "The editorial team covers consumer and business VPN pricing, online privacy controls, secure browsing habits, and remote-work security for readers in the United States. The site focuses on translating pricing pages, renewal terms, and privacy claims into practical subscription decisions.",
   },
   disclaimer:
     "VPN Cost Guide publishes editorial content for informational purposes only. We do not provide legal advice, cybersecurity incident response, or managed VPN services.",
@@ -53,6 +53,7 @@ const footerCategoryLinks = [
 const legalLinks = [
   ["About", "/about/"],
   ["Contact", "/contact/"],
+  ["Affiliate Disclosure", "/affiliate-disclosure/"],
   ["Privacy Policy", "/privacy-policy/"],
   ["Terms", "/terms/"],
   ["Disclaimer", "/disclaimer/"],
@@ -162,7 +163,7 @@ function renderStats(stats) {
             <article class="stat-card">
               <span class="stat-card__value">${escapeHtml(stat.value)}</span>
               <span class="stat-card__label">${escapeHtml(stat.label)}</span>
-              <p>${escapeHtml(stat.note)}</p>
+              ${stat.note ? `<p>${escapeHtml(stat.note)}</p>` : ""}
             </article>`,
         )
         .join("")}
@@ -253,8 +254,8 @@ function defaultFaqs(page) {
       a: `No. A VPN is one useful layer, but strong passwords, software updates, phishing awareness, multi-factor authentication, and device hygiene still matter for real-world online safety. A VPN helps most with connection privacy, IP masking, and safer browsing on untrusted networks, but it does not stop every scam, malware infection, or account takeover on its own. The strongest results come from pairing a VPN with smarter account security habits.`,
     },
     {
-      q: `Do U.S. and U.K. buyers need to compare VPN pricing differently?`,
-      a: `Yes, at least slightly. U.S. shoppers often see cleaner pre-tax pricing, while U.K. readers may need to account for VAT, currency conversion, and occasional regional promo differences that change the effective billed total. Even when the provider is the same, the checkout math and renewal picture can look different by country, so it is worth checking the final cart before buying.`,
+      q: `What should U.S. buyers check before paying for a VPN?`,
+      a: `U.S. buyers should check the final billed amount, the renewal terms, the device allowance, and the refund policy before paying. Many VPNs advertise low monthly-equivalent rates that only apply to long prepaid terms, so the total checkout price matters more than the banner headline. It is also smart to confirm whether extra taxes, bundled add-ons, or automatic renewal settings change the true first-year cost.`,
     },
   ];
 }
@@ -282,42 +283,38 @@ function chartMarkup(chart) {
         ${chart.bars
           .map(
             (bar) => `
-              <div class="bar-chart__item">
-                <div class="bar-chart__rail">
-                  <span class="bar-chart__fill bar-chart__fill--${escapeAttr(bar.tone)}" style="height:${bar.width}%">
-                    <span class="bar-chart__percent">${escapeHtml(String(bar.width))}%</span>
-                  </span>
+              <div class="bar-chart__item bar-chart__item--score">
+                <div class="score-chip score-chip--${escapeAttr(bar.tone)}">
+                  <strong>${escapeHtml(bar.value)}</strong>
                 </div>
-                <strong>${escapeHtml(bar.value)}</strong>
                 <span>${escapeHtml(bar.label)}</span>
               </div>`,
           )
           .join("")}
-      </div>
-      <div class="chart-panel__legend">
-        <span><i class="legend-dot legend-dot--cyan"></i>Price clarity</span>
-        <span><i class="legend-dot legend-dot--green"></i>Privacy confidence</span>
-        <span><i class="legend-dot legend-dot--blue"></i>Performance fit</span>
-        <span><i class="legend-dot legend-dot--teal"></i>Everyday usability</span>
       </div>
     </section>`;
 }
 
 function authorBox() {
   return `
-    <div class="author-box">
-      <div class="author-avatar">${escapeHtml(site.author.initials)}</div>
-      <div class="author-info">
-        <strong>${escapeHtml(site.author.name)}</strong>
-        <span>VPN Security Researcher · 8 years experience · Cybersecurity analyst · Updated April 2026</span>
-      </div>
+    <div class="author-box editorial-block">
+      <strong>VPN Cost Guide Editorial Team</strong>
+      <p>Last reviewed: April 2026</p>
+      <p>This guide compiles pricing and privacy information from provider pages, independent audit summaries, and public disclosures. Content is reviewed quarterly against updated provider data.</p>
     </div>`;
 }
 
 function editorialNote() {
   return `
     <div class="editorial-note">
-      <strong>Editorial Note:</strong> All pricing data on this page was last verified in April 2026 against provider pricing pages, independent audit summaries, and official privacy disclosures. Alex Turner has personally reviewed all VPN pricing and methodology used in this guide.
+      <strong>Editorial Note:</strong> All pricing data on this page was last verified in April 2026 against provider pricing pages, independent audit summaries, and official privacy disclosures. Information is reviewed quarterly.
+    </div>`;
+}
+
+function affiliateNotice(fromFile) {
+  return `
+    <div class="affiliate-notice" style="background: #f8f9fa; border-left: 3px solid #0066cc; padding: 12px 16px; margin: 16px 0; font-size: 0.9em;">
+      <strong>Disclosure:</strong> This page contains affiliate links. We may earn a commission when you purchase through these links, at no additional cost to you. <a href="${escapeAttr(localPageHref(fromFile, "/affiliate-disclosure/"))}">Learn more</a>.
     </div>`;
 }
 
@@ -439,7 +436,7 @@ function headSchemas(page, faqList, crumbs) {
 }
 
 function pageLead(page) {
-  return `${page.description} We focus on what readers in the United States and the United Kingdom usually care about most: what the service costs after the promo, how safe the provider looks, where the practical fit is strong, and where cheaper options can quietly create more friction than they save.`;
+  return `${page.description} We focus on what readers in the United States usually care about most: what the service costs after the promo, how safe the provider looks, where the practical fit is strong, and where cheaper options can quietly create more friction than they save.`;
 }
 
 function commonSections(page) {
@@ -715,7 +712,7 @@ function buildArticleBody(page, fromFile) {
 function pageShell(page, innerHtml, fromFile) {
   const crumbs = breadcrumbsFor(page);
   const title = page.metaTitle || uniqueTitle(page.title);
-  const description = uniqueDescription(page.description);
+  const metaDescription = uniqueDescription(page.metaDescription || page.description);
   const faqData = Array.isArray(page.faqs)
     ? page.faqs
     : page.type === "article" || page.type === "review" || page.type === "comparison" || page.type === "tool"
@@ -734,7 +731,8 @@ function pageShell(page, innerHtml, fromFile) {
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>${escapeHtml(title)}</title>
-    <meta name="description" content="${escapeAttr(description)}">
+    ${page.metaDescriptionComment ? `<!-- ${escapeHtml(page.metaDescriptionComment)} -->` : ""}
+    <meta name="description" content="${escapeAttr(metaDescription)}">
     <link rel="canonical" href="${escapeAttr(canonicalUrl(page.route))}">
     <link rel="icon" href="${escapeAttr(faviconIco)}">
     <link rel="stylesheet" href="${escapeAttr(assetCss)}">
@@ -743,12 +741,12 @@ function pageShell(page, innerHtml, fromFile) {
     <meta name="robots" content="${escapeAttr(page.robots || "index, follow")}">
     <meta property="og:type" content="${escapeAttr(page.ogType || "article")}">
     <meta property="og:title" content="${escapeAttr(title)}">
-    <meta property="og:description" content="${escapeAttr(description)}">
+    <meta property="og:description" content="${escapeAttr(metaDescription)}">
     <meta property="og:url" content="${escapeAttr(canonicalUrl(page.route))}">
     <meta property="og:image" content="${escapeAttr(socialImage)}">
     <meta name="twitter:card" content="summary_large_image">
     <meta name="twitter:title" content="${escapeAttr(title)}">
-    <meta name="twitter:description" content="${escapeAttr(description)}">
+    <meta name="twitter:description" content="${escapeAttr(metaDescription)}">
     <meta name="twitter:image" content="${escapeAttr(socialImage)}">
     <meta name="twitter:url" content="${escapeAttr(canonicalUrl(page.route))}">
     <meta name="theme-color" content="#07111f">
@@ -780,11 +778,12 @@ function pageShell(page, innerHtml, fromFile) {
           <span class="eyebrow">${escapeHtml(page.kicker || page.parent?.title || "VPN Intelligence")}</span>
           <h1>${escapeHtml(page.h1)}</h1>
           ${page.route !== "/" && page.route !== "/404/" ? `${authorBox()}${editorialNote()}` : ""}
+          ${page.type === "review" || page.type === "comparison" ? affiliateNotice(fromFile) : ""}
           <p class="hero__lede">${escapeHtml(page.description)}</p>
           <div class="hero__meta">
             <span>Updated ${escapeHtml(lastmod)}</span>
             <span>${readingTime(wordEstimate)} min read</span>
-            <span>U.S. & U.K. editorial guide</span>
+            <span>U.S. editorial guide</span>
           </div>
           <div class="hero__actions">
             <a class="button button--primary" href="${escapeAttr(localPageHref(fromFile, page.primaryCta?.route || "/tools/vpn-cost-calculator/"))}">${escapeHtml(page.primaryCta?.label || "Open Cost Calculator")}</a>
@@ -797,7 +796,7 @@ function pageShell(page, innerHtml, fromFile) {
       </section>
       ${page.route === "/" ? `
       <section class="home-trust-note panel">
-        <p>All guides researched and written by Alex Turner, VPN Security Researcher with 8 years of experience covering consumer and business VPN pricing.</p>
+        <p>All guides on VPN Cost Guide are reviewed by the editorial team using provider pricing pages, independent audit summaries, and public disclosures.</p>
       </section>` : ""}
       ${innerHtml}
       <footer class="site-footer">
@@ -827,7 +826,6 @@ function pageShell(page, innerHtml, fromFile) {
             <h2>Contact</h2>
             <ul>
               <li><a href="mailto:${escapeAttr(site.email)}">${escapeHtml(site.email)}</a></li>
-              <li>${escapeHtml(site.phone)}</li>
               <li>Serving privacy-conscious users in the United States</li>
             </ul>
           </section>
@@ -944,6 +942,33 @@ const reviewNames = [
   ["windscribe-review", "Windscribe Review", "Windscribe", ["Flexible pricing", "Moderate renewal"], "Good for custom-fit buyers", "Users wanting flexible plan shapes"],
 ];
 
+function reviewMetaDescription(brand) {
+  const descriptions = {
+    NordVPN:
+      "NordVPN review 2026: pricing from $3.09/month, Threat Protection features, Panama jurisdiction, and how renewals compare to ExpressVPN and Surfshark for U.S. users.",
+    ExpressVPN:
+      "ExpressVPN review 2026: pricing from $6.67/month, Lightway protocol, TrustedServer audit status, and value assessment vs NordVPN for U.S. buyers.",
+    Surfshark:
+      "Surfshark review 2026: pricing from $2.19/month, unlimited devices, CleanWeb ad-blocker, and how it compares to premium VPNs for U.S. households.",
+    CyberGhost:
+      "CyberGhost review 2026: pricing from $2.03/month, streaming-focused servers, long refund window, and whether the value still holds for U.S. users. ",
+    "Proton VPN":
+      "Proton VPN review 2026: pricing from $2.99/month, privacy-first positioning, free tier context, and whether the paid plans justify the upgrade for U.S. users.",
+    "Private Internet Access":
+      "Private Internet Access review 2026: pricing from $1.98/month, open-source apps, unlimited devices, and how the long-term value compares for U.S. buyers.",
+    IPVanish:
+      "IPVanish review 2026: pricing from $2.19/month, unlimited-device coverage, renewal considerations, and where it fits best for U.S. households.",
+    "Atlas VPN":
+      "Atlas VPN review 2026: service closure status, legacy pricing context, and what former U.S. users should know before relying on outdated comparisons.",
+    Mullvad:
+      "Mullvad review 2026: flat monthly pricing around $5.77, privacy-first account model, and whether its no-discount approach is worth it for U.S. users.",
+    Windscribe:
+      "Windscribe review 2026: pricing from custom low-cost plans, flexible build-a-plan options, and how the value compares for U.S. privacy-focused buyers.",
+  };
+
+  return descriptions[brand] || `${brand} review 2026: pricing, privacy signals, renewal value, and subscription fit for U.S. buyers.`;
+}
+
 function buildReviewPages() {
   return reviewNames.map(([slug, title, brand, pricing, privacy, bestFor], index) => {
     const brandPriceRoute =
@@ -978,6 +1003,8 @@ function buildReviewPages() {
       title,
       h1: title,
       description: `${brand} review for U.S. buyers covering price, renewal value, privacy signals, app experience, speed consistency, and ideal use cases.`,
+      metaDescription: reviewMetaDescription(brand),
+      metaDescriptionComment: "VERIFICAR PRECIO VIGENTE",
       type: "review",
       schemaType: "review",
       brand,
@@ -1830,8 +1857,8 @@ function opportunityFaqs(page) {
       a: `The renewal structure usually matters most because it decides whether the service still feels fair after the first term. Buyers should also check device limits, refund length, and whether the provider adds extra security tools that justify a higher price. When those details are unclear, the cheapest headline rate can become an expensive mistake in practice.`,
     },
     {
-      q: `Are there differences between U.S. and U.K. shoppers on ${page.shortTopic}?`,
-      a: `Yes. U.S. buyers often compare pre-tax checkout pricing, while U.K. buyers may also need to account for VAT, localized payment options, and exchange-rate shifts when a provider bills in dollars. The product may be the same, but the effective first charge and renewal comfort level can feel different once currency and tax are added back in.`,
+      q: `Are there differences between U.S. and international shoppers on ${page.shortTopic}?`,
+      a: `Yes. U.S. buyers often compare pre-tax checkout pricing, while international buyers may also need to account for taxes, localized payment options, and exchange-rate shifts when a provider bills in dollars. The product may be the same, but the effective first charge and renewal comfort level can feel different once currency and tax are added back in.`,
     },
     {
       q: `Should readers use the monthly plan first when researching ${page.shortTopic}?`,
@@ -1850,7 +1877,7 @@ function opportunitySections(page) {
       eyebrow: "Direct Answer",
       title: `${page.h1} in plain English`,
       paragraphs: [
-        `${page.shortAnswer} In the current U.S. and U.K. consumer market, the strongest-value plans usually come from longer terms offered by mainstream providers rather than from sketchy ultra-cheap brands. That means a sensible buyer should look at billed totals, device limits, and refund policies together instead of treating the lowest effective monthly price as the whole story.`,
+        `${page.shortAnswer} In the current U.S. consumer market, the strongest-value plans usually come from longer terms offered by mainstream providers rather than from sketchy ultra-cheap brands. That means a sensible buyer should look at billed totals, device limits, and refund policies together instead of treating the lowest effective monthly price as the whole story.`,
         `${page.marketView} A shopper comparing NordVPN, ExpressVPN, Surfshark, CyberGhost, and IPVanish will notice that the market usually clusters around roughly $12.99 to $15.45 on monthly plans, then drops sharply on annual or multi-year subscriptions. That spread is exactly why intent matters: a short-term traveler might rationally pay monthly, while a household that needs year-round protection should usually avoid month-to-month pricing.`,
         `${page.angle} Readers also need to account for the fact that many providers now bundle privacy extras, password tools, or identity services into higher tiers. Those bundles can create real value, but only if the buyer would otherwise pay for those services separately.`,
       ],
@@ -1880,7 +1907,7 @@ function opportunitySections(page) {
       paragraphs: [
         `${page.hiddenCost} Renewal inflation is the biggest issue, but it is not the only one. A provider can also seem inexpensive until the buyer realizes that the cheapest plan excludes features they actually need, or that the service works well on a laptop but feels awkward on streaming devices, hotel Wi-Fi, or work machines.`,
         `Billing shape matters too. A plan advertised at two or three dollars per month can still require a meaningful upfront payment, and that can be uncomfortable for shoppers who only wanted a short test period. In business settings, the same issue shows up as per-user multiplication, where a fair-looking seat price becomes a much larger annual commitment once the whole team is counted.`,
-        `U.K. readers may also see slightly different effective totals because VAT and currency conversion can change the billed figure at checkout. That does not always make the plan bad value, but it does mean the sensible decision is based on the final cart total, not on the lowest dollar amount repeated across affiliate-style pages.`,
+        `International readers may also see slightly different effective totals because taxes and currency conversion can change the billed figure at checkout. That does not always make the plan bad value, but it does mean the sensible decision is based on the final cart total, not on the lowest dollar amount repeated across marketing-heavy pages.`,
       ],
     },
     {
@@ -2244,15 +2271,15 @@ const searchConsolePagesRaw = [
   {
     slug: "vpn-cost-by-country",
     title: "VPN Cost by Country",
-    description: "VPN cost by country guide comparing U.S., U.K., and other market differences in pricing, VAT, currency, and regional checkout expectations.",
+    description: "VPN cost by country guide comparing U.S. and international market differences in pricing, taxes, currency, and regional checkout expectations.",
     parent: hubs[0],
     shortTopic: "vpn cost by country",
-    shortAnswer: "VPN cost by country often looks similar in headline marketing but can feel different at checkout once VAT, currency conversion, and regional promotions are factored in.",
-    marketView: "This is particularly relevant for a site serving both U.S. and U.K. readers.",
+    shortAnswer: "VPN cost by country often looks similar in headline marketing but can feel different at checkout once taxes, currency conversion, and regional promotions are factored in.",
+    marketView: "This is particularly relevant for readers comparing U.S. pricing with international checkout realities.",
     angle: "The page should show that price is global in marketing but local in billing reality.",
     comparisonView: "The meaningful comparison is final billed total and renewal comfort by country, not just the advertised dollar amount.",
-    hiddenCost: "The hidden cost is assuming a U.S.-centric coupon or headline rate will map cleanly to a U.K. checkout.",
-    bestFit: "This page helps international buyers, expatriates, and U.K. readers comparing provider economics more carefully.",
+    hiddenCost: "The hidden cost is assuming a U.S.-centric coupon or headline rate will map cleanly to every international checkout.",
+    bestFit: "This page helps international buyers, expatriates, and U.S. readers comparing provider economics more carefully.",
     bottomLine: "Country-level VPN pricing matters because the billed reality can differ even when the product and marketing message are the same.",
     providers: ["NordVPN", "ExpressVPN", "Surfshark", "CyberGhost", "IPVanish"],
     links: "support",
@@ -2284,7 +2311,7 @@ function buildSearchConsolePages() {
       leftBrand: item.leftBrand,
       rightBrand: item.rightBrand,
       stats: [
-        { label: "Primary intent", value: item.shortTopic, note: "Targeted from Search Console demand clusters." },
+        { label: "Primary intent", value: item.shortTopic, note: "Built around a high-intent pricing or comparison question." },
         { label: "Core buyer lens", value: item.parent.title, note: "Mapped into an existing topical hub for stronger internal linking." },
         { label: "Pricing band", value: "$1.99 to $15.45", note: "Mainstream VPN market range referenced on this page." },
         { label: "Updated", value: lastmod, note: "Pricing language refreshed for the current editorial cycle." },
@@ -2445,7 +2472,7 @@ function vpnCostsHubBody(fromFile) {
 
   return `
     ${renderStats([
-      { label: "Search Console momentum", value: "+25,100%", note: "This hub is being expanded to capture growing pricing demand." },
+      { label: "Demand momentum", value: "+25,100%", note: "Consumer interest in VPN pricing continues to rise sharply." },
       { label: "Consumer price band", value: "$2-$13/mo", note: "The mainstream market spans budget promos through premium month-to-month plans." },
       { label: "Typical annual savings", value: "60-70%", note: "Long-term plans normally save far more than true monthly billing." },
       { label: "Audience fit", value: "USA-first pricing", note: "Built to answer the strongest U.S. cost and value questions." },
@@ -2533,11 +2560,11 @@ function hubBody(page, fromFile) {
     ${renderStats([
       { label: "Pages in this cluster", value: String(cards.length), note: "Built for internal linking and topical depth." },
       { label: "Content style", value: "Premium editorial", note: "Long-form guidance with comparison tables and FAQs." },
-      { label: "SEO structure", value: "Extensionless", note: "Clean canonicals, breadcrumbs, and schema-ready pages." },
-      { label: "Monetization fit", value: "AdSense-ready", note: "Trust pages, strong navigation, and no ad placeholders." },
+      { label: "URL structure", value: "Clean routes", note: "Stable canonicals and straightforward internal navigation." },
+      { label: "Update cadence", value: "Quarterly review", note: "Key pages are refreshed against provider pricing and policy changes." },
     ])}
     <section class="panel intro-panel">
-      <p class="lede">${escapeHtml(page.description)} This hub is designed as a category landing page that helps Search Console, users, and internal linking all point to a clean center of gravity.</p>
+      <p class="lede">${escapeHtml(page.description)} Use this hub to move quickly between the key guides in this topic without bouncing through duplicate or overlapping pages.</p>
       ${renderBulletList([
         "Use hub pages to discover related guides without duplicate topic overlap.",
         "Each article is linked contextually and through visual cards.",
@@ -2562,8 +2589,7 @@ function hubBody(page, fromFile) {
           .join("")}
       </div>
     </section>
-    ${researchBox()}
-    ${authorBox()}`;
+    ${researchBox()}`;
 }
 
 const utilityPages = [
@@ -2586,6 +2612,16 @@ const utilityPages = [
     kicker: "Contact",
     heroImage: "assets/images/hero-tools-dashboard.svg",
     heroTone: "tools",
+  },
+  {
+    route: "/affiliate-disclosure/",
+    title: "Affiliate Disclosure",
+    h1: "Affiliate Disclosure",
+    description: "VPN Cost Guide affiliate disclosure explaining how affiliate links work, how commissions support the site, and how editorial independence is maintained.",
+    type: "page",
+    kicker: "Editorial",
+    heroImage: "assets/images/hero-review-lab.svg",
+    heroTone: "review",
   },
   {
     route: "/privacy-policy/",
@@ -2666,9 +2702,27 @@ function utilityBody(page, fromFile) {
         <p class="lede">For corrections, privacy questions, licensing requests, or editorial feedback, contact the team using the details below. We review factual corrections and safety-related reports as quickly as possible.</p>
         <div class="info-grid">
           <article><h2>Email</h2><p><a href="mailto:${escapeAttr(site.email)}">${escapeHtml(site.email)}</a></p></article>
-          <article><h2>Phone</h2><p>${escapeHtml(site.phone)}</p></article>
           <article><h2>Coverage</h2><p>Consumer VPNs, online privacy, subscription costs, and personal cybersecurity for U.S. audiences.</p></article>
         </div>
+      </section>
+      ${researchBox()}`;
+  }
+
+  if (page.route === "/affiliate-disclosure/") {
+    return `
+      <section class="panel">
+        <p class="lede"><strong>Last updated: April 2026</strong></p>
+        <p>VPN Cost Guide participates in affiliate programs with VPN providers and cybersecurity companies. When you click on certain links on this website and make a purchase, we may earn a commission at no additional cost to you.</p>
+        <h2>How affiliate relationships work on this site</h2>
+        <p>Some links on VPN Cost Guide are affiliate links. When a reader clicks one of these links and completes a purchase, we may receive a commission from the provider. The price paid by the reader does not change.</p>
+        <p>We currently participate in affiliate programs with providers including, but not limited to, NordVPN, ExpressVPN, Surfshark, CyberGhost, ProtonVPN, and Private Internet Access. This list may change over time as programs are added or discontinued.</p>
+        <h2>How this affects our content</h2>
+        <p>Our editorial recommendations are based on independent research of provider pricing pages, public privacy disclosures, independent audit summaries, and customer-facing documentation. We do not accept payment in exchange for positive reviews, favorable rankings, or promotional placement.</p>
+        <p>Commissions help us maintain the site, update pricing information quarterly, and continue producing free educational content. They do not influence which products we cover or how we evaluate them.</p>
+        <h2>FTC compliance</h2>
+        <p>In accordance with U.S. Federal Trade Commission guidelines, this disclosure informs readers that VPN Cost Guide has financial relationships with some of the companies mentioned on this site. Individual pages that contain affiliate links include a brief disclosure near the top of the page.</p>
+        <h2>Questions</h2>
+        <p>If you have questions about how we use affiliate links or how we research products, please contact us at <a href="mailto:${escapeAttr(site.email)}">${escapeHtml(site.email)}</a>.</p>
       </section>
       ${researchBox()}`;
   }
@@ -2710,7 +2764,7 @@ function utilityBody(page, fromFile) {
     "/privacy-policy/": [
       "We collect the minimum information needed to operate the site, respond to messages, prevent abuse, and understand high-level performance trends. We do not sell personal information. Essential cookies support consent preferences, security, and site functionality.",
       "California privacy rights and GDPR-aligned controls are respected through our cookie banner choices and our preference handling approach. Users can contact us about access, correction, or deletion requests tied to data we directly control.",
-      "This site may use Google AdSense and related Google advertising technology to serve ads, measure performance, and limit fraud. Google and its partners may use cookies or similar identifiers to personalize advertising and reporting, subject to regional consent rules and the settings a user chooses through the cookie banner.",
+      "This site may use Google advertising technology to serve ads, measure performance, and limit fraud. Google and its partners may use cookies or similar identifiers to personalize advertising and reporting, subject to regional consent rules and the settings a user chooses through the cookie banner.",
     ],
     "/terms/": [
       "VPN Cost Guide content is offered for informational and educational purposes. By using the site, readers agree not to misuse tools, copy content unlawfully, or rely on editorial material as a substitute for professional legal or cybersecurity advice.",
@@ -2726,7 +2780,7 @@ function utilityBody(page, fromFile) {
     ],
     "/how-we-research/": [
       "We review provider pricing pages, renewal disclosures, plan limits, refund policies, transparency reports, public audit references, and app experience signals. We also look at how easily a normal user can understand what is being bought and what compromises come with cheaper plans.",
-      "Our scoring lens is intentionally consumer-first. We care about true cost, trust, usability, and scenario fit more than flashy affiliate-style rankings. That approach helps us build content that is more stable for SEO and more useful for readers over time.",
+      "Our scoring lens is intentionally consumer-first. We care about true cost, trust, usability, and scenario fit more than flashy rankings. That approach helps us build content that stays useful and transparent over time.",
     ],
     "/cookie-policy/": [
       "Our site uses essential cookies for consent management, session safety, and performance continuity. Optional analytics and measurement signals, when present, are kept lightweight and are governed by user choice where applicable.",
@@ -2751,9 +2805,9 @@ const homePage = {
   route: "/",
   title: "VPN Cost Guide",
   metaTitle: "VPN Cost Guide: Premium VPN Pricing & Privacy",
-  h1: "VPN Cost Guide for U.S. and U.K. Privacy, Pricing, and Cybersecurity Decisions",
+  h1: "VPN Cost Guide for U.S. Privacy, Pricing, and Cybersecurity Decisions",
   description:
-    "Premium guides, reviews, comparisons, and calculators for readers in the U.S. and U.K. comparing VPN subscriptions, privacy tools, and online safety costs.",
+    "Premium guides, reviews, comparisons, and calculators for readers in the United States comparing VPN subscriptions, privacy tools, and online safety costs.",
   type: "home",
   schemaType: "home",
   ogType: "website",
@@ -2767,18 +2821,18 @@ const homePage = {
 function homeBody(fromFile) {
   return `
     ${renderStats([
-      { label: "Editorial pages", value: String(allArticlePages.length + hubs.length + utilityPages.length + 2), note: "Built to scale well beyond 100 pages." },
+      { label: "Editorial guides", value: String(allArticlePages.length + hubs.length + utilityPages.length + 2), note: "" },
       { label: "Core clusters", value: "6", note: "Pricing, reviews, use cases, cybersecurity, comparisons, and tools." },
-      { label: "Audience", value: "U.S. and U.K.", note: "Core pages are written for American and British buying patterns." },
-      { label: "Publishing standard", value: "AdSense-ready", note: "Legal pages, author signals, sources, FAQs, and trust-first layouts." },
+      { label: "Audience", value: "United States", note: "Core pages are written for American buying patterns." },
+      { label: "Last updated", value: "2026", note: "Content reviewed quarterly against provider pricing pages." },
     ])}
     <section class="panel home-intro">
       <div class="section-heading">
         <span class="eyebrow">Why This Site Exists</span>
         <h2>A premium VPN website built for trust, not clutter</h2>
       </div>
-      <p>VPN Cost Guide is designed to become a reference site for readers in the United States and the United Kingdom comparing VPN subscriptions, digital privacy tools, and personal cybersecurity spending. Instead of thin affiliate-style blurbs, we build long-form pages with price context, fit analysis, privacy signals, FAQ coverage, and conversion-ready layouts that still feel editorial.</p>
-      <p>The site architecture is built from the start for clean Search Console signals: extensionless routes, absolute canonicals without <code>.html</code>, no <code>www</code> canonicals, no accidental <code>index.html</code> navigation, and strong internal linking from category hubs into supporting guides.</p>
+      <p>VPN Cost Guide is designed to become a reference site for readers in the United States comparing VPN subscriptions, digital privacy tools, and personal cybersecurity spending. Instead of thin affiliate-style blurbs, we build long-form pages with price context, fit analysis, privacy signals, FAQ coverage, and conversion-ready layouts that still feel editorial.</p>
+      <p>The site architecture emphasizes clean navigation, stable URLs, and strong internal linking from category hubs into supporting guides so readers can move from broad research to specific product questions without friction.</p>
     </section>
     <section class="panel">
       <div class="section-heading">
