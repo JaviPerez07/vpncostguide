@@ -66,6 +66,22 @@ const legalLinks = [
 ];
 
 const socialImage = `${domain}/assets/images/social-preview.svg`;
+const nordAffiliateSnippetPath = path.join(root, "assets/affiliate/nordvpn/snippets/disclosure-banner.html");
+const nordAffiliateConfig = {
+  "/vpn-reviews/nordvpn-review/": { subId: "nordvpn-review", maxCtas: 3 },
+  "/vpn-costs/nordvpn-price/": { subId: "nordvpn-price", maxCtas: 3 },
+  "/vpn-deals/": { subId: "vpn-deals", maxCtas: 2 },
+  "/best-vpn-2026-pricing-edition/": { subId: "best-vpn-2026", maxCtas: 1 },
+  "/comparisons/nordvpn-vs-expressvpn/": { subId: "nv-vs-express", maxCtas: 1 },
+  "/comparisons/surfshark-vs-nordvpn/": { subId: "ss-vs-nv", maxCtas: 1 },
+  "/pages/nordvpn-vs-expressvpn-cost/": { subId: "nv-express-cost", maxCtas: 1 },
+  "/pages/nordvpn-vs-surfshark-cost/": { subId: "nv-ss-cost", maxCtas: 1 },
+  "/vpn-costs/": { subId: "vpn-costs-idx", maxCtas: 1 },
+  "/pages/vpn-pricing-guide/": { subId: "vpn-pricing-gd", maxCtas: 1 },
+  "/pages/vpn-price-comparison/": { subId: "vpn-price-comp", maxCtas: 1 },
+  "/vpn-costs/vpn-cost-per-year/": { subId: "vpn-cost-year", maxCtas: 1 },
+};
+const nordAffiliateSnippet = await fs.readFile(nordAffiliateSnippetPath, "utf8");
 
 function escapeHtml(value) {
   return String(value)
@@ -125,6 +141,15 @@ function pageSitemapUrl(page) {
 
 function pageDate(page) {
   return page.dateModified || lastmod;
+}
+
+function getNordAffiliateConfig(pageOrRoute) {
+  const route = typeof pageOrRoute === "string" ? pageOrRoute : pageOrRoute?.route;
+  return route ? nordAffiliateConfig[route] || null : null;
+}
+
+function nordAffiliateUrl(subId) {
+  return `https://go.nordvpn.net/aff_c?offer_id=15&aff_id=146283&aff_sub=${encodeURIComponent(subId)}`;
 }
 
 function ensureTrailingSlash(route) {
@@ -329,6 +354,34 @@ function affiliateNotice(fromFile) {
   return `
     <div class="affiliate-notice" style="background: #f8f9fa; border-left: 3px solid #0066cc; padding: 12px 16px; margin: 16px 0; font-size: 0.9em;">
       <strong>Disclosure:</strong> This page contains affiliate links. We may earn a commission when you purchase through these links, at no additional cost to you. <a href="${escapeAttr(localPageHref(fromFile, "/affiliate-disclosure/"))}">Learn more</a>.
+    </div>`;
+}
+
+function nordDisclosureBanner(fromFile) {
+  return nordAffiliateSnippet.replace('href="/affiliate-disclosure/"', `href="${escapeAttr(localPageHref(fromFile, "/affiliate-disclosure/"))}"`);
+}
+
+function nordAffiliateAnchor(route, label, className = "") {
+  const config = getNordAffiliateConfig(route);
+  if (!config) return escapeHtml(label);
+  return `<a href="${escapeAttr(nordAffiliateUrl(config.subId))}"${className ? ` class="${escapeAttr(className)}"` : ""} rel="nofollow sponsored" target="_blank">${escapeHtml(label)}</a>`;
+}
+
+function nordTopCard(route) {
+  return `
+    <div class="affiliate-cta-card">
+      <h3>NordVPN — From $3.09/mo on 2-year plan</h3>
+      <p>One of the most established VPN providers. 30-day money-back guarantee, covered in this review. Plans start at around $3.09/mo on the 2-year Basic plan as of April 2026.</p>
+      ${nordAffiliateAnchor(route, "Visit NordVPN →", "cta-btn-primary")}
+      <small>Affiliate link — see our disclosure above. Pricing verified April 2026.</small>
+    </div>`;
+}
+
+function nordClosingCard(route) {
+  return `
+    <div class="affiliate-cta-card-secondary">
+      <p><strong>Want to try NordVPN?</strong> The 30-day money-back guarantee means you can test it risk-free.</p>
+      ${nordAffiliateAnchor(route, "Check current NordVPN pricing →", "cta-btn-secondary")}
     </div>`;
 }
 
@@ -723,6 +776,102 @@ function buildArticleBody(page, fromFile) {
     </div>`;
 }
 
+function applyNordAffiliateEnhancements(page, bodyHtml) {
+  const config = getNordAffiliateConfig(page);
+  if (!config) return bodyHtml;
+
+  let html = bodyHtml;
+
+  if (page.route === "/vpn-reviews/nordvpn-review/") {
+    html = `${nordTopCard(page.route)}${html}`;
+    html = html.replace('<p class="lede">NordVPN review', `<p class="lede">${nordAffiliateAnchor(page.route, "NordVPN")} review`);
+    html = html.replace('<span class="eyebrow">People Also Ask</span>', `${nordClosingCard(page.route)}\n    <span class="eyebrow">People Also Ask</span>`);
+  }
+
+  if (page.route === "/vpn-costs/nordvpn-price/") {
+    html = `${nordTopCard(page.route)}${html}`;
+    html = html.replace(
+      '<tr><th scope="col">Plan</th><th scope="col">1 Month</th><th scope="col">1 Year / mid-term</th><th scope="col">Best long-term offer</th><th scope="col">Current renewal signal</th></tr>',
+      '<tr><th scope="col">Plan</th><th scope="col">1 Month</th><th scope="col">1 Year / mid-term</th><th scope="col">Best long-term offer</th><th scope="col">Current renewal signal</th><th scope="col">Get plan</th></tr>',
+    );
+    html = html.replace(
+      '<tr><td>Basic</td><td>$12.99</td><td>$68.85 for 15 months ($4.59/mo avg)</td><td>$83.43 for 27 months ($3.09/mo avg)</td><td>$139.08/year renewal signal on current pricing page</td></tr>',
+      `<tr><td>Basic</td><td>$12.99</td><td>$68.85 for 15 months ($4.59/mo avg)</td><td>$83.43 for 27 months ($3.09/mo avg)</td><td>$139.08/year renewal signal on current pricing page</td><td>${nordAffiliateAnchor(page.route, "View plan →", "cta-btn-secondary")}</td></tr>`,
+    );
+    html = html.replace(
+      '<tr><td>Plus</td><td>$13.99</td><td>$82.35 for 15 months ($5.49/mo avg)</td><td>$96.93 for 27 months ($3.59/mo avg)</td><td>$179.88/year renewal signal</td></tr>',
+      '<tr><td>Plus</td><td>$13.99</td><td>$82.35 for 15 months ($5.49/mo avg)</td><td>$96.93 for 27 months ($3.59/mo avg)</td><td>$179.88/year renewal signal</td><td>—</td></tr>',
+    );
+    html = html.replace(
+      '<tr><td>Complete</td><td>$14.99</td><td>$97.35 for 15 months ($6.49/mo avg)</td><td>$134.73 for 27 months ($4.99/mo avg)</td><td>$219.48/year renewal signal</td></tr>',
+      '<tr><td>Complete</td><td>$14.99</td><td>$97.35 for 15 months ($6.49/mo avg)</td><td>$134.73 for 27 months ($4.99/mo avg)</td><td>$219.48/year renewal signal</td><td>—</td></tr>',
+    );
+    html = html.replace(
+      '<tr><td>Prime</td><td>$16.59-$16.99</td><td>Varies by offer</td><td>$6.99/mo equivalent on current long-term pricing</td><td>Higher renewal depending on region and offer</td></tr>',
+      '<tr><td>Prime</td><td>$16.59-$16.99</td><td>Varies by offer</td><td>$6.99/mo equivalent on current long-term pricing</td><td>Higher renewal depending on region and offer</td><td>—</td></tr>',
+    );
+    html = html.replace('<span class="eyebrow">People Also Ask</span>', `${nordClosingCard(page.route)}\n    <span class="eyebrow">People Also Ask</span>`);
+  }
+
+  if (page.route === "/vpn-deals/") {
+    html = html.replace(
+      '<tr><th scope="col">Provider</th><th scope="col">Cheapest per-month</th><th scope="col">Longest plan</th><th scope="col">Money-back</th><th scope="col">Notable for</th></tr>',
+      '<tr><th scope="col">Provider</th><th scope="col">Cheapest per-month</th><th scope="col">Longest plan</th><th scope="col">Money-back</th><th scope="col">Notable for</th><th scope="col">Get deal</th></tr>',
+    );
+    html = html.replace(
+      '<tr><td>NordVPN</td><td>~$3/mo on a 27-month Basic offer</td><td>27 months</td><td>30 days</td><td>Strong all-rounder</td></tr>',
+      `<tr><td>NordVPN</td><td>~$3/mo on a 27-month Basic offer</td><td>27 months</td><td>30 days</td><td>Strong all-rounder</td><td>${nordAffiliateAnchor(page.route, "View deal →", "cta-btn-secondary")}</td></tr>`,
+    );
+    html = html.replace('<tr><td>Surfshark</td><td>~$2/mo on a 24-month Starter offer</td><td>24 months</td><td>30 days</td><td>Unlimited devices</td></tr>', '<tr><td>Surfshark</td><td>~$2/mo on a 24-month Starter offer</td><td>24 months</td><td>30 days</td><td>Unlimited devices</td><td>—</td></tr>');
+    html = html.replace('<tr><td>ExpressVPN</td><td>~$3.49/mo on a 28-month Basic offer</td><td>28 months</td><td>30 days</td><td>Streaming focus</td></tr>', '<tr><td>ExpressVPN</td><td>~$3.49/mo on a 28-month Basic offer</td><td>28 months</td><td>30 days</td><td>Streaming focus</td><td>—</td></tr>');
+    html = html.replace('<tr><td>Proton VPN</td><td>Free tier available / ~EUR 2.99 on 24 months</td><td>24 months</td><td>30 days</td><td>Privacy-first</td></tr>', '<tr><td>Proton VPN</td><td>Free tier available / ~EUR 2.99 on 24 months</td><td>24 months</td><td>30 days</td><td>Privacy-first</td><td>—</td></tr>');
+    html = html.replace('<tr><td>Mullvad</td><td>Flat EUR 5/mo always</td><td>Monthly</td><td>14 days</td><td>No account number games</td></tr>', '<tr><td>Mullvad</td><td>Flat EUR 5/mo always</td><td>Monthly</td><td>14 days</td><td>No account number games</td><td>—</td></tr>');
+    html = html.replace(
+      '<li>Our take: NordVPN remains a strong all-round pricing reference because it is competitive without being the absolute cheapest option in the market.</li>',
+      `<li>Our take: NordVPN remains a strong all-round pricing reference because it is competitive without being the absolute cheapest option in the market.</li><li>${nordAffiliateAnchor(page.route, "View NordVPN plans →", "cta-btn-secondary")}</li>`,
+    );
+  }
+
+  if (page.route === "/best-vpn-2026-pricing-edition/") {
+    html = html.replace(
+      '<p>NordVPN lands just behind Surfshark because it balances price and trust extremely well, even if it is not the absolute cheapest service in the market. For many readers, that balance matters more than saving a dollar a month. It remains one of the easiest brands to recommend when the buyer wants a service that feels established, broadly useful, and still competitive on long-term pricing.</p>',
+      `<p>NordVPN lands just behind Surfshark because it balances price and trust extremely well, even if it is not the absolute cheapest service in the market. For many readers, that balance matters more than saving a dollar a month. It remains one of the easiest brands to recommend when the buyer wants a service that feels established, broadly useful, and still competitive on long-term pricing.</p><p>${nordAffiliateAnchor(page.route, "View NordVPN plans →", "cta-btn-secondary")}</p>`,
+    );
+  }
+
+  const comparisonRoutes = {
+    "/comparisons/nordvpn-vs-expressvpn/": { left: true, note: "Check live NordVPN pricing directly." },
+    "/comparisons/surfshark-vs-nordvpn/": { left: false, note: "Check live NordVPN pricing directly." },
+    "/pages/nordvpn-vs-expressvpn-cost/": { left: true, note: "Check live NordVPN pricing directly." },
+    "/pages/nordvpn-vs-surfshark-cost/": { left: true, note: "Check live NordVPN pricing directly." },
+  };
+
+  if (comparisonRoutes[page.route]) {
+    const comparison = comparisonRoutes[page.route];
+    const row = comparison.left
+      ? `<tr><td>Direct pricing</td><td>${nordAffiliateAnchor(page.route, "View NordVPN", "cta-btn-secondary")}</td><td>—</td><td>${comparison.note}</td></tr>`
+      : `<tr><td>Direct pricing</td><td>—</td><td>${nordAffiliateAnchor(page.route, "View NordVPN", "cta-btn-secondary")}</td><td>${comparison.note}</td></tr>`;
+    html = html.replace("</tbody>", `${row}</tbody>`);
+  }
+
+  if (page.route === "/vpn-costs/") {
+    html = html.replace(
+      '<p>Atlas VPN is included because it still appears in a lot of legacy comparison queries, but it is no longer an active product in 2026. Proton VPN remains notable because it still offers one of the strongest true free tiers. Mullvad is the outlier on price structure, since it does not try to lure buyers with a deep long-term discount and instead keeps a flat monthly rate.</p>',
+      `<p>Atlas VPN is included because it still appears in a lot of legacy comparison queries, but it is no longer an active product in 2026. Proton VPN remains notable because it still offers one of the strongest true free tiers. Mullvad is the outlier on price structure, since it does not try to lure buyers with a deep long-term discount and instead keeps a flat monthly rate.</p><p>For readers who want to compare one of the most searched premium-reference offers directly, ${nordAffiliateAnchor(page.route, "NordVPN")} remains a useful benchmark for long-term consumer pricing.</p>`,
+    );
+  }
+
+  if (page.route === "/pages/vpn-pricing-guide/" || page.route === "/pages/vpn-price-comparison/") {
+    html = html.replace("NordVPN currently sits around", `${nordAffiliateAnchor(page.route, "NordVPN")} currently sits around`);
+  }
+
+  if (page.route === "/vpn-costs/vpn-cost-per-year/") {
+    html = html.replace("A shopper comparing NordVPN, ExpressVPN", `A shopper comparing ${nordAffiliateAnchor(page.route, "NordVPN")}, ExpressVPN`);
+  }
+
+  return html;
+}
+
 function pageShell(page, innerHtml, fromFile) {
   const crumbs = breadcrumbsFor(page);
   const title = page.metaTitle || uniqueTitle(page.title);
@@ -791,8 +940,9 @@ function pageShell(page, innerHtml, fromFile) {
           ${page.route !== "/" ? renderBreadcrumbs(fromFile, crumbs) : ""}
           <span class="eyebrow">${escapeHtml(page.kicker || page.parent?.title || "VPN Intelligence")}</span>
           <h1>${escapeHtml(page.h1)}</h1>
+          ${page.route !== "/" && page.route !== "/404/" && getNordAffiliateConfig(page) ? nordDisclosureBanner(fromFile) : ""}
           ${page.route !== "/" && page.route !== "/404/" ? `${authorBox()}${editorialNote()}` : ""}
-          ${page.type === "review" || page.type === "comparison" ? affiliateNotice(fromFile) : ""}
+          ${page.type === "review" || page.type === "comparison" ? (getNordAffiliateConfig(page) ? "" : affiliateNotice(fromFile)) : ""}
           <p class="hero__lede">${escapeHtml(page.description)}</p>
           <div class="hero__meta">
             <span>Updated ${escapeHtml(pageDate(page))}</span>
@@ -1889,7 +2039,7 @@ function opportunitySections(page) {
   return [
     {
       eyebrow: "Direct Answer",
-      title: `${page.h1} in plain English`,
+      title: `${page.h1 || page.title} in plain English`,
       paragraphs: [
         `${page.shortAnswer} In the current U.S. consumer market, the strongest-value plans usually come from longer terms offered by mainstream providers rather than from sketchy ultra-cheap brands. That means a sensible buyer should look at billed totals, device limits, and refund policies together instead of treating the lowest effective monthly price as the whole story.`,
         `${page.marketView} A shopper comparing NordVPN, ExpressVPN, Surfshark, CyberGhost, and IPVanish will notice that the market usually clusters around roughly $12.99 to $15.45 on monthly plans, then drops sharply on annual or multi-year subscriptions. That spread is exactly why intent matters: a short-term traveler might rationally pay monthly, while a household that needs year-round protection should usually avoid month-to-month pricing.`,
@@ -3394,7 +3544,8 @@ async function writePage(page) {
   const file = toFile(page.route);
   const fullPath = path.join(root, file);
   await fs.mkdir(path.dirname(fullPath), { recursive: true });
-  const html = pageShell(page, pageContent(page, file), file);
+  const body = applyNordAffiliateEnhancements(page, pageContent(page, file));
+  const html = pageShell(page, body, file);
   await fs.writeFile(fullPath, html);
   return { route: page.route, file, words: wordCount(html) };
 }

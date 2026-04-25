@@ -844,3 +844,89 @@ th {
   color: var(--cyan);
   font-weight: 700;
 }
+
+/* ===== Affiliate CTA Cards ===== */
+
+.affiliate-cta-card {
+  background: linear-gradient(135deg, #f0f4f8 0%, #e8eef5 100%);
+  border: 1px solid #d1dce8;
+  border-left: 5px solid #4687ff;
+  border-radius: 8px;
+  padding: 24px 28px;
+  margin: 28px 0;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+}
+
+.affiliate-cta-card h3 {
+  margin: 0 0 12px 0;
+  color: #1a3a5c;
+  font-size: 1.15em;
+}
+
+.affiliate-cta-card p {
+  margin: 0 0 18px 0;
+  color: #2c3e50;
+  line-height: 1.55;
+}
+
+.affiliate-cta-card small {
+  display: block;
+  margin-top: 12px;
+  color: #5a6c7e;
+  font-size: 0.85em;
+}
+
+.affiliate-cta-card-secondary {
+  background: #fafbfc;
+  border: 1px solid #e1e8ef;
+  border-radius: 6px;
+  padding: 18px 22px;
+  margin: 24px 0;
+}
+
+.affiliate-cta-card-secondary p {
+  margin: 0 0 12px 0;
+}
+
+.cta-btn-primary,
+.cta-btn-secondary {
+  display: inline-block;
+  padding: 12px 24px;
+  background: #4687ff;
+  color: #ffffff !important;
+  text-decoration: none;
+  border-radius: 6px;
+  font-weight: 600;
+  font-size: 0.98em;
+  transition: background 0.2s;
+}
+
+.cta-btn-primary:hover,
+.cta-btn-secondary:hover {
+  background: #3672e0;
+  text-decoration: none;
+}
+
+.cta-btn-secondary {
+  background: #1a3a5c;
+}
+
+.cta-btn-secondary:hover {
+  background: #0e2540;
+}
+
+@media (max-width: 640px) {
+  .affiliate-cta-card,
+  .affiliate-cta-card-secondary {
+    padding: 18px 16px;
+  }
+  
+  .cta-btn-primary,
+  .cta-btn-secondary {
+    display: block;
+    text-align: center;
+    width: 100%;
+    box-sizing: border-box;
+  }
+}
+/* ===== End Affiliate CTA Cards ===== */
