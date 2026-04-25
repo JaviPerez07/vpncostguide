@@ -89,6 +89,11 @@
       </section>
       
       
+    <aside class="editor-pick-card">
+      <p class="editor-pick-label">Editor's pricing pick</p>
+      <p class="editor-pick-body">Surfshark leads on raw per-month price, but NordVPN consistently ranks #2 in our pricing edition for users who want premium features (Threat Protection, Meshnet, larger server network) without paying ExpressVPN territory. Worth a look if budget alone isn't your only criterion.</p>
+      <a href="https://go.nordvpn.net/aff_c?offer_id=15&amp;aff_id=146283&amp;aff_sub=best-vpn-2026" class="quick-take-cta" rel="nofollow sponsored" target="_blank">See NordVPN current pricing →</a>
+    </aside>
       <section class="panel">
         <p class="lede">Most best VPN lists rank services by features, speed, or brand recognition. This one does not. Our ranking focuses exclusively on one thing: the real per-month cost you will pay, including renewals, hidden fees, and plan structures most reviewers skip.</p>
         <p>This is a pricing-focused ranking. If you want feature-by-feature analysis, TechRadar and PCMag have deep reviews. If you want to know which VPN is actually the best value for money in 2026, read on.</p>
@@ -213,7 +218,7 @@
           <section>
             <h2>Contact</h2>
             <ul>
-              <li><a href="mailto:contact@vpncostguide.com">contact@vpncostguide.com</a></li>
+              <li><a href="mailto:javiperezguides@gmail.com">javiperezguides@gmail.com</a></li>
               <li>Serving privacy-conscious users in the United States</li>
             </ul>
           </section>
@@ -230,5 +235,44 @@
         <button type="button" class="button button--primary" data-cookie-action="accept">Accept</button>
       </div>
     </div>
+    <script>
+   (function() {
+     const header = document.querySelector('.site-header');
+     if (!header) return;
+     let lastScroll = 0;
+     let ticking = false;
+
+     function updateHeader() {
+       const currentScroll = window.pageYOffset;
+       const isMobile = window.innerWidth < 768;
+
+       if (currentScroll > 50) {
+         header.classList.add('scrolled');
+       } else {
+         header.classList.remove('scrolled');
+       }
+
+       if (isMobile && currentScroll > 100) {
+         if (currentScroll > lastScroll) {
+           header.classList.add('header-hidden');
+         } else {
+           header.classList.remove('header-hidden');
+         }
+       } else {
+         header.classList.remove('header-hidden');
+       }
+
+       lastScroll = currentScroll <= 0 ? 0 : currentScroll;
+       ticking = false;
+     }
+
+     window.addEventListener('scroll', function() {
+       if (!ticking) {
+         window.requestAnimationFrame(updateHeader);
+         ticking = true;
+       }
+     }, { passive: true });
+   })();
+   </script>
   </body>
 </html>

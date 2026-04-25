@@ -12,7 +12,7 @@
 - Replaced the visible individual author box with the editorial-team pattern across content pages.
 - Replaced the editorial note text with the quarterly-review version requested.
 - Removed the fake phone number from the footer and contact page.
-- Replaced the legacy contact email with `contact@vpncostguide.com`.
+- Replaced the legacy contact email with `javiperezguides@gmail.com`.
 - Added `Affiliate Disclosure` to the footer editorial links.
 - Added an affiliate disclosure banner near the top of every review and comparison page.
 - Switched public-facing geography from U.S. + U.K. messaging to U.S.-only sitewide copy.
@@ -25,7 +25,7 @@
 ## Counts
 
 - Editorial-team blocks rendered on content pages: 101
-- Direct `contact@vpncostguide.com` references rendered: 106
+- Direct `javiperezguides@gmail.com` references rendered: 106
 - Affiliate disclosure banners rendered: 24
 - Review pages flagged with `VERIFICAR PRECIO VIGENTE`: 10
 - Local navigation audit issues after regeneration: 0

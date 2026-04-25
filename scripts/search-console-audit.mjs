@@ -2,7 +2,7 @@ import fs from "node:fs/promises";
 import fsSync from "node:fs";
 import path from "node:path";
 
-const root = "/Users/javiperezz7/Documents/vpncostguide";
+const root = process.cwd();
 const domain = "https://vpncostguide.com";
 const reportFile = path.join(root, "search_console_audit.md");
 

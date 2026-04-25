@@ -1,7 +1,7 @@
 import fs from "node:fs/promises";
 import path from "node:path";
 
-const root = "/Users/javiperezz7/Documents/vpncostguide";
+const root = process.cwd();
 const reportFile = path.join(root, "adsense_readiness.md");
 const requiredPages = [
   "about/index.html",

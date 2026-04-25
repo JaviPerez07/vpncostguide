@@ -452,6 +452,10 @@
         <li>Consumer cybersecurity guidance from U.S. federal agencies and nonprofit digital-rights organizations for privacy and personal-security best practices.</li>
       </ul>
     </section>
+    <aside class="closing-cta-card">
+      <p class="closing-cta-text">Want to compare current NordVPN pricing against the figures in this guide?</p>
+      <a href="https://go.nordvpn.net/aff_c?offer_id=15&amp;aff_id=146283&amp;aff_sub=vpn-costs-idx" class="quick-take-cta" rel="nofollow sponsored" target="_blank">View NordVPN plans →</a>
+    </aside>
       <footer class="site-footer">
         <div class="footer-grid">
           <section>
@@ -474,7 +478,7 @@
           <section>
             <h2>Contact</h2>
             <ul>
-              <li><a href="mailto:contact@vpncostguide.com">contact@vpncostguide.com</a></li>
+              <li><a href="mailto:javiperezguides@gmail.com">javiperezguides@gmail.com</a></li>
               <li>Serving privacy-conscious users in the United States</li>
             </ul>
           </section>
@@ -491,5 +495,44 @@
         <button type="button" class="button button--primary" data-cookie-action="accept">Accept</button>
       </div>
     </div>
+    <script>
+   (function() {
+     const header = document.querySelector('.site-header');
+     if (!header) return;
+     let lastScroll = 0;
+     let ticking = false;
+
+     function updateHeader() {
+       const currentScroll = window.pageYOffset;
+       const isMobile = window.innerWidth < 768;
+
+       if (currentScroll > 50) {
+         header.classList.add('scrolled');
+       } else {
+         header.classList.remove('scrolled');
+       }
+
+       if (isMobile && currentScroll > 100) {
+         if (currentScroll > lastScroll) {
+           header.classList.add('header-hidden');
+         } else {
+           header.classList.remove('header-hidden');
+         }
+       } else {
+         header.classList.remove('header-hidden');
+       }
+
+       lastScroll = currentScroll <= 0 ? 0 : currentScroll;
+       ticking = false;
+     }
+
+     window.addEventListener('scroll', function() {
+       if (!ticking) {
+         window.requestAnimationFrame(updateHeader);
+         ticking = true;
+       }
+     }, { passive: true });
+   })();
+   </script>
   </body>
 </html>

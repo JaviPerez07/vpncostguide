@@ -188,6 +188,11 @@
       </section>
       
       
+    <aside class="best-price-card">
+      <p class="best-price-label">Best per-month price right now</p>
+      <p class="best-price-body">Of the providers we track, NordVPN's 2-year Basic plan currently sits around $3.09/mo (advertised by the provider as part of the long-term package). Below you'll find the full comparison.</p>
+      <a href="https://go.nordvpn.net/aff_c?offer_id=15&amp;aff_id=146283&amp;aff_sub=vpn-deals" class="quick-take-cta" rel="nofollow sponsored" target="_blank">Check live NordVPN price →</a>
+    </aside>
       <section class="panel">
         <p class="lede">We track VPN pricing across major providers and update this page monthly. Rather than chasing flash sales or misleading discount marketing, we focus on the real per-month cost readers will actually pay, including renewal rates, money-back guarantees, and hidden fees.</p>
         <p>Prices change frequently. All figures on this page were verified against each provider's official website in April 2026. Always check current pricing before subscribing.</p>
@@ -329,7 +334,7 @@
           <section>
             <h2>Contact</h2>
             <ul>
-              <li><a href="mailto:contact@vpncostguide.com">contact@vpncostguide.com</a></li>
+              <li><a href="mailto:javiperezguides@gmail.com">javiperezguides@gmail.com</a></li>
               <li>Serving privacy-conscious users in the United States</li>
             </ul>
           </section>
@@ -346,5 +351,44 @@
         <button type="button" class="button button--primary" data-cookie-action="accept">Accept</button>
       </div>
     </div>
+    <script>
+   (function() {
+     const header = document.querySelector('.site-header');
+     if (!header) return;
+     let lastScroll = 0;
+     let ticking = false;
+
+     function updateHeader() {
+       const currentScroll = window.pageYOffset;
+       const isMobile = window.innerWidth < 768;
+
+       if (currentScroll > 50) {
+         header.classList.add('scrolled');
+       } else {
+         header.classList.remove('scrolled');
+       }
+
+       if (isMobile && currentScroll > 100) {
+         if (currentScroll > lastScroll) {
+           header.classList.add('header-hidden');
+         } else {
+           header.classList.remove('header-hidden');
+         }
+       } else {
+         header.classList.remove('header-hidden');
+       }
+
+       lastScroll = currentScroll <= 0 ? 0 : currentScroll;
+       ticking = false;
+     }
+
+     window.addEventListener('scroll', function() {
+       if (!ticking) {
+         window.requestAnimationFrame(updateHeader);
+         ticking = true;
+       }
+     }, { passive: true });
+   })();
+   </script>
   </body>
 </html>

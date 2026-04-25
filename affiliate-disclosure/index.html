@@ -95,7 +95,7 @@
         <h2>FTC compliance</h2>
         <p>In accordance with U.S. Federal Trade Commission guidelines, this disclosure informs readers that VPN Cost Guide has financial relationships with some of the companies mentioned on this site. Individual pages that contain affiliate links include a brief disclosure near the top of the page.</p>
         <h2>Questions</h2>
-        <p>If you have questions about how we use affiliate links or how we research products, please contact us at <a href="mailto:contact@vpncostguide.com">contact@vpncostguide.com</a>.</p>
+        <p>If you have questions about how we use affiliate links or how we research products, please contact us at <a href="mailto:javiperezguides@gmail.com">javiperezguides@gmail.com</a>.</p>
       </section>
       
     <section class="panel info-grid">
@@ -132,7 +132,7 @@
           <section>
             <h2>Contact</h2>
             <ul>
-              <li><a href="mailto:contact@vpncostguide.com">contact@vpncostguide.com</a></li>
+              <li><a href="mailto:javiperezguides@gmail.com">javiperezguides@gmail.com</a></li>
               <li>Serving privacy-conscious users in the United States</li>
             </ul>
           </section>
@@ -149,5 +149,44 @@
         <button type="button" class="button button--primary" data-cookie-action="accept">Accept</button>
       </div>
     </div>
+    <script>
+   (function() {
+     const header = document.querySelector('.site-header');
+     if (!header) return;
+     let lastScroll = 0;
+     let ticking = false;
+
+     function updateHeader() {
+       const currentScroll = window.pageYOffset;
+       const isMobile = window.innerWidth < 768;
+
+       if (currentScroll > 50) {
+         header.classList.add('scrolled');
+       } else {
+         header.classList.remove('scrolled');
+       }
+
+       if (isMobile && currentScroll > 100) {
+         if (currentScroll > lastScroll) {
+           header.classList.add('header-hidden');
+         } else {
+           header.classList.remove('header-hidden');
+         }
+       } else {
+         header.classList.remove('header-hidden');
+       }
+
+       lastScroll = currentScroll <= 0 ? 0 : currentScroll;
+       ticking = false;
+     }
+
+     window.addEventListener('scroll', function() {
+       if (!ticking) {
+         window.requestAnimationFrame(updateHeader);
+         ticking = true;
+       }
+     }, { passive: true });
+   })();
+   </script>
   </body>
 </html>

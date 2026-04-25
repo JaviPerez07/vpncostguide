@@ -1,7 +1,7 @@
 import fs from "node:fs/promises";
 import path from "node:path";
 
-const root = "/Users/javiperezz7/Documents/vpncostguide";
+const root = process.cwd();
 
 const scripts = [
   "verify-broken-links.mjs",

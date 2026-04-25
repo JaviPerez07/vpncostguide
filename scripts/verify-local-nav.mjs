@@ -2,7 +2,7 @@ import fs from "node:fs/promises";
 import fsSync from "node:fs";
 import path from "node:path";
 
-const root = "/Users/javiperezz7/Documents/vpncostguide";
+const root = process.cwd();
 const reportPath = path.join(root, "local-preview-report.md");
 
 async function walk(dir) {

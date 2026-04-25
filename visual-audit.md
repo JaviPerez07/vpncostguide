@@ -29,5 +29,5 @@
 
 ## Notes
 
-- Local `file://` navigation remains supported through relative links and the existing preview adaptation script in [`assets/main.js`](/Users/javiperezz7/Documents/vpncostguide/assets/main.js).
+- Local `file://` navigation remains supported through relative links and the existing preview adaptation script in `assets/main.js`.
 - Safari automation for full DOM inspection was limited because `Allow JavaScript from Apple Events` is disabled, so the visual pass combined direct screenshot attempts with code-level layout auditing and local navigation verification.
