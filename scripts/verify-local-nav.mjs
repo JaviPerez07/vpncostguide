@@ -28,7 +28,9 @@ function resolveCandidates(file, ref) {
   return [path.join(absolute, "index.html"), `${absolute}.html`, absolute];
 }
 
-const htmlFiles = (await walk(root)).filter((file) => file.endsWith(".html"));
+const htmlFiles = (await walk(root)).filter(
+  (file) => file.endsWith(".html") && !file.includes("/assets/affiliate/"),
+);
 const titles = new Map();
 const descriptions = new Map();
 const canonicals = new Map();

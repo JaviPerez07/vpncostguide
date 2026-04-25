@@ -819,3 +819,28 @@ th {
     position: static;
   }
 }
+
+.affiliate-disclosure-banner {
+  display: grid;
+  gap: 8px;
+  margin: 18px 0;
+  padding: 16px 18px;
+  border: 1px solid rgba(80, 215, 255, 0.2);
+  border-left: 3px solid var(--cyan);
+  border-radius: 16px;
+  background: rgba(11, 23, 40, 0.92);
+  color: var(--muted);
+}
+
+.affiliate-disclosure-banner strong {
+  color: var(--text);
+}
+
+.affiliate-disclosure-banner p {
+  margin: 0;
+}
+
+.affiliate-disclosure-banner a {
+  color: var(--cyan);
+  font-weight: 700;
+}

@@ -43,6 +43,7 @@ const navGroups = [
 
 const footerCategoryLinks = [
   ["Average VPN Cost", "/vpn-costs/average-vpn-cost-per-month/"],
+  ["VPN Deals", "/vpn-deals/"],
   ["VPN Reviews", "/vpn-reviews/"],
   ["Best VPN for Netflix", "/vpn-use-cases/best-vpn-for-netflix/"],
   ["Public WiFi Safety", "/cybersecurity-guides/how-to-stay-safe-on-public-wifi/"],
@@ -59,6 +60,7 @@ const legalLinks = [
   ["Disclaimer", "/disclaimer/"],
   ["Editorial Policy", "/editorial-policy/"],
   ["How We Research", "/how-we-research/"],
+  ["How We Review", "/how-we-review/"],
   ["Cookie Policy", "/cookie-policy/"],
   ["HTML Sitemap", "/sitemap/"],
 ];
@@ -111,6 +113,18 @@ function toFile(route) {
 function canonicalUrl(route) {
   if (route === "/") return `${domain}/`;
   return `${domain}${route.replace(/\/$/, "")}`;
+}
+
+function pageCanonical(page) {
+  return page.canonical || canonicalUrl(page.route);
+}
+
+function pageSitemapUrl(page) {
+  return page.sitemapUrl || pageCanonical(page);
+}
+
+function pageDate(page) {
+  return page.dateModified || lastmod;
 }
 
 function ensureTrailingSlash(route) {
@@ -388,11 +402,11 @@ function buildArticleSchema(page) {
         url: site.organization.logo,
       },
     },
-    mainEntityOfPage: canonicalUrl(page.route),
+    mainEntityOfPage: pageCanonical(page),
     image: socialImage,
-    url: canonicalUrl(page.route),
+    url: pageCanonical(page),
     datePublished: "2026-04-09",
-    dateModified: lastmod,
+    dateModified: pageDate(page),
   };
 }
 
@@ -712,7 +726,7 @@ function buildArticleBody(page, fromFile) {
 function pageShell(page, innerHtml, fromFile) {
   const crumbs = breadcrumbsFor(page);
   const title = page.metaTitle || uniqueTitle(page.title);
-  const metaDescription = uniqueDescription(page.metaDescription || page.description);
+  const metaDescription = page.metaDescriptionExact || uniqueDescription(page.metaDescription || page.description);
   const faqData = Array.isArray(page.faqs)
     ? page.faqs
     : page.type === "article" || page.type === "review" || page.type === "comparison" || page.type === "tool"
@@ -733,7 +747,7 @@ function pageShell(page, innerHtml, fromFile) {
     <title>${escapeHtml(title)}</title>
     ${page.metaDescriptionComment ? `<!-- ${escapeHtml(page.metaDescriptionComment)} -->` : ""}
     <meta name="description" content="${escapeAttr(metaDescription)}">
-    <link rel="canonical" href="${escapeAttr(canonicalUrl(page.route))}">
+    <link rel="canonical" href="${escapeAttr(pageCanonical(page))}">
     <link rel="icon" href="${escapeAttr(faviconIco)}">
     <link rel="stylesheet" href="${escapeAttr(assetCss)}">
     ${adsenseScript}
@@ -742,13 +756,13 @@ function pageShell(page, innerHtml, fromFile) {
     <meta property="og:type" content="${escapeAttr(page.ogType || "article")}">
     <meta property="og:title" content="${escapeAttr(title)}">
     <meta property="og:description" content="${escapeAttr(metaDescription)}">
-    <meta property="og:url" content="${escapeAttr(canonicalUrl(page.route))}">
+    <meta property="og:url" content="${escapeAttr(pageCanonical(page))}">
     <meta property="og:image" content="${escapeAttr(socialImage)}">
     <meta name="twitter:card" content="summary_large_image">
     <meta name="twitter:title" content="${escapeAttr(title)}">
     <meta name="twitter:description" content="${escapeAttr(metaDescription)}">
     <meta name="twitter:image" content="${escapeAttr(socialImage)}">
-    <meta name="twitter:url" content="${escapeAttr(canonicalUrl(page.route))}">
+    <meta name="twitter:url" content="${escapeAttr(pageCanonical(page))}">
     <meta name="theme-color" content="#07111f">
     <link rel="manifest" href="${escapeAttr(manifest)}">
     <script src="${escapeAttr(assetJs)}" defer></script>
@@ -781,7 +795,7 @@ function pageShell(page, innerHtml, fromFile) {
           ${page.type === "review" || page.type === "comparison" ? affiliateNotice(fromFile) : ""}
           <p class="hero__lede">${escapeHtml(page.description)}</p>
           <div class="hero__meta">
-            <span>Updated ${escapeHtml(lastmod)}</span>
+            <span>Updated ${escapeHtml(pageDate(page))}</span>
             <span>${readingTime(wordEstimate)} min read</span>
             <span>U.S. editorial guide</span>
           </div>
@@ -1777,13 +1791,13 @@ function vpnUseCaseCostTable() {
     caption: "VPN cost by use case in 2026",
     headers: ["Use Case", "Recommended VPN", "Monthly Cost", "Why"],
     rows: [
-      ["Best VPN for Netflix", "NordVPN", "$3.09/mo on the 27-month Basic deal", "Strong mainstream streaming track record with a better long-term rate than many premium rivals."],
-      ["Best VPN for Gaming", "Surfshark", "$1.99/mo on the 24-month Starter deal", "Aggressive long-term pricing and unlimited-device flexibility for mixed console and PC households."],
-      ["Best VPN for Remote Work", "ExpressVPN", "$3.49/mo on the 28-month Basic deal", "Consistent apps and polished setup make it easier for non-technical remote workers."],
-      ["Best VPN for Travel", "ExpressVPN", "$12.99/mo month to month", "Monthly flexibility is useful for short travel windows and hotel Wi-Fi protection."],
-      ["Best VPN for Privacy", "Mullvad", "$5.77/mo equivalent", "Flat-rate pricing and a privacy-first positioning appeal to readers who dislike long lock-ins."],
-      ["Best cheap VPN", "CyberGhost", "$2.03/mo on the 28-month deal", "One of the lowest mainstream long-term prices with a 45-day money-back period."],
-      ["Best free VPN", "ProtonVPN", "$0", "The strongest mainstream free tier for people who genuinely need a no-cost option."],
+      ["Recommended for Netflix", "NordVPN", "$3.09/mo on the 27-month Basic deal", "Strong mainstream streaming track record with a better long-term rate than many premium rivals."],
+      ["Recommended for Gaming", "Surfshark", "$1.99/mo on the 24-month Starter deal", "Aggressive long-term pricing and unlimited-device flexibility for mixed console and PC households."],
+      ["Recommended for Remote Work", "ExpressVPN", "$3.49/mo on the 28-month Basic deal", "Consistent apps and polished setup make it easier for non-technical remote workers."],
+      ["Recommended for Travel", "ExpressVPN", "$12.99/mo month to month", "Monthly flexibility is useful for short travel windows and hotel Wi-Fi protection."],
+      ["Recommended for Privacy", "Mullvad", "$5.77/mo equivalent", "Flat-rate pricing and a privacy-first positioning appeal to readers who dislike long lock-ins."],
+      ["Recommended budget option", "CyberGhost", "$2.03/mo on the 28-month deal", "One of the lowest mainstream long-term prices with a 45-day money-back period."],
+      ["Recommended free option", "ProtonVPN", "$0", "The strongest mainstream free tier for people who genuinely need a no-cost option."],
     ],
   };
 }
@@ -2455,6 +2469,8 @@ function vpnCostsHubBody(fromFile) {
     "/vpn-costs/vpn-cost-for-business/",
     "/vpn-costs/free-vs-paid-vpn-cost/",
     "/vpn-costs/nordvpn-price/",
+    "/vpn-deals/",
+    "/best-vpn-2026-pricing-edition/",
   ];
 
   const featureCards = newCostRoutes
@@ -2674,6 +2690,54 @@ const utilityPages = [
     heroTone: "cyber",
   },
   {
+    route: "/how-we-review/",
+    title: "How We Review VPNs",
+    breadcrumb: "How We Review",
+    h1: "How We Review VPNs",
+    description: "See how VPN Cost Guide verifies pricing, checks privacy disclosures, and evaluates value before publishing recommendations.",
+    type: "page",
+    kicker: "Methodology",
+    heroImage: "assets/images/hero-review-lab.svg",
+    heroTone: "review",
+    dateModified: "2026-04-24",
+    canonical: `${domain}/how-we-review/`,
+    sitemapUrl: `${domain}/how-we-review/`,
+  },
+  {
+    route: "/vpn-deals/",
+    title: "Best VPN Deals April 2026 | Current Pricing Analysis | VPNCostGuide",
+    metaTitle: "Best VPN Deals April 2026 | Current Pricing Analysis | VPNCostGuide",
+    breadcrumb: "VPN Deals",
+    h1: "Best VPN Deals — April 2026 Pricing Analysis",
+    description: "Independent comparison of current VPN pricing from major providers. See the best per-month value, longest money-back guarantees, and most transparent pricing as of April 2026.",
+    metaDescriptionExact: "Independent comparison of current VPN pricing from major providers. See the best per-month value, longest money-back guarantees, and most transparent pricing as of April 2026.",
+    type: "page",
+    kicker: "VPN Deals",
+    heroImage: "assets/images/hero-vpn-pricing.svg",
+    heroTone: "pricing",
+    parent: hubs[0],
+    dateModified: "2026-04-24",
+    canonical: `${domain}/vpn-deals/`,
+    sitemapUrl: `${domain}/vpn-deals/`,
+  },
+  {
+    route: "/best-vpn-2026-pricing-edition/",
+    title: "Best VPN 2026: Pricing Edition | Ranked by Real Per-Month Cost",
+    metaTitle: "Best VPN 2026: Pricing Edition | Ranked by Real Per-Month Cost",
+    breadcrumb: "Best VPN 2026",
+    h1: "Best VPN 2026: Pricing Edition",
+    description: "A VPN ranking focused on what you'll actually pay, not headline prices. Honest per-month cost analysis of the top VPN providers in 2026.",
+    metaDescriptionExact: "A VPN ranking focused on what you'll actually pay, not headline prices. Honest per-month cost analysis of the top VPN providers in 2026.",
+    type: "page",
+    kicker: "Pricing Edition",
+    heroImage: "assets/images/hero-vpn-pricing.svg",
+    heroTone: "pricing",
+    parent: hubs[0],
+    dateModified: "2026-04-24",
+    canonical: `${domain}/best-vpn-2026-pricing-edition/`,
+    sitemapUrl: `${domain}/best-vpn-2026-pricing-edition/`,
+  },
+  {
     route: "/cookie-policy/",
     title: "Cookie Policy",
     h1: "Cookie Policy",
@@ -2695,6 +2759,270 @@ const utilityPages = [
   },
 ];
 
+function vpnDealsFaqs() {
+  return [
+    {
+      q: "Are VPN deals legitimate?",
+      a: "Usually, yes, but the headline number rarely tells the full story. The cheapest per-month figure almost always assumes a long prepaid term, and some providers lean heavily on promo framing that makes the initial price look simpler than it really is. A legitimate VPN deal should still show the billed total, the renewal terms, and the refund window clearly before checkout. If those details are missing, the deal deserves extra caution.",
+    },
+    {
+      q: "Why are longer plans so much cheaper per month?",
+      a: "Longer plans are priced to reduce churn and lock in customers before they compare alternatives. That lets providers advertise a very low monthly-equivalent figure even though the real upfront payment is much larger than one month of service. For readers, the right comparison is not just the promo number but the billed total, the contract length, and whether the service still looks fair at renewal.",
+    },
+    {
+      q: "What happens to my price when the plan renews?",
+      a: "That depends on the provider, but many VPN companies reserve the right to renew at a higher standard rate after the discounted first term ends. Some make renewal pricing reasonably easy to find, while others leave it buried in checkout or billing text. Before paying for a long plan, it is smart to check the renewal language, save a screenshot of the offer, and set a reminder before auto-renewal kicks in.",
+    },
+    {
+      q: "Can I get a refund if I find a better deal elsewhere?",
+      a: "Often yes, if you are still inside the provider's money-back period and you meet the refund terms. The standard window is around 30 days for many mainstream VPNs, but the process can vary. Some services make refunds straightforward through live chat or account settings, while others ask users to open a support ticket first. That is why refund friction is part of how we evaluate a deal, not just the advertised price.",
+    },
+    {
+      q: "Do free VPNs offer real value, or should I pay?",
+      a: "Free VPNs can offer real value when the need is limited and the provider is credible, but they usually come with tradeoffs in speed, server choice, streaming access, or support. Proton VPN's free tier remains one of the strongest mainstream examples because it is tied to a broader privacy-first product ecosystem. For regular streaming, travel, or work use, though, most readers will get better long-term value from a paid plan with a real refund window.",
+    },
+  ];
+}
+
+function vpnDealsBody(fromFile) {
+  return `
+      <section class="panel">
+        <p class="lede">We track VPN pricing across major providers and update this page monthly. Rather than chasing flash sales or misleading discount marketing, we focus on the real per-month cost readers will actually pay, including renewal rates, money-back guarantees, and hidden fees.</p>
+        <p>Prices change frequently. All figures on this page were verified against each provider's official website in April 2026. Always check current pricing before subscribing.</p>
+        <!-- OWNER NOTE: Update this page monthly. Verify all prices before publishing changes. Update the "Last verified" date in the hero and the disclaimer at the bottom of the table. -->
+      </section>
+      <section class="panel">
+        <div class="section-heading">
+          <span class="eyebrow">April 2026</span>
+          <h2>Quick Comparison Table</h2>
+        </div>
+        ${renderTable({
+          caption: "Quick comparison table for April 2026",
+          headers: ["Provider", "Cheapest per-month", "Longest plan", "Money-back", "Notable for"],
+          rows: [
+            ["NordVPN", "~$3/mo on a 27-month Basic offer", "27 months", "30 days", "Strong all-rounder"],
+            ["Surfshark", "~$2/mo on a 24-month Starter offer", "24 months", "30 days", "Unlimited devices"],
+            ["ExpressVPN", "~$3.49/mo on a 28-month Basic offer", "28 months", "30 days", "Streaming focus"],
+            ["Proton VPN", "Free tier available / ~EUR 2.99 on 24 months", "24 months", "30 days", "Privacy-first"],
+            ["Mullvad", "Flat EUR 5/mo always", "Monthly", "14 days", "No account number games"],
+          ],
+        })}
+        <p><em>Prices approximate, as of April 2026. Check each provider's website for current exact pricing. Cheapest per-month figures are typically only available on longest-commitment plans.</em></p>
+      </section>
+      <section class="panel">
+        <div class="section-heading">
+          <span class="eyebrow">Deal Quality</span>
+          <h2>What to Look For in a VPN Deal</h2>
+        </div>
+        ${renderBulletList([
+          "Per-month cost on the plan you will actually use matters more than the headline number, because a $2 per month banner usually assumes a long prepaid term.",
+          "Renewal rates deserve as much attention as the first-term promo, since many providers raise prices sharply once the introductory term ends.",
+          "Money-back guarantee length matters because it gives you time to test speed, streaming access, and app quality on your real devices before committing.",
+          "Refund process details are worth reading because some providers make refunds simple while others require a support conversation or manual ticket.",
+          "Included features still matter on a cheap plan, since a low price is less useful if simultaneous connections, split tunneling, or support quality are cut too far.",
+        ])}
+      </section>
+      <section class="panel">
+        <div class="section-heading">
+          <span class="eyebrow">Provider Breakdown</span>
+          <h2>Per-Provider Pricing Breakdown</h2>
+        </div>
+        <h3>NordVPN Pricing</h3>
+        <ul class="key-list">
+          <li>Monthly plan: $12.99 (billed monthly)</li>
+          <li>Annual plan: $68.85 total for 15 months / about $4.59 per month</li>
+          <li>2-year plan: $83.43 total for 27 months / about $3.09 per month</li>
+          <li>Money-back guarantee: 30 days</li>
+          <li>Renewal note: verify renewal pricing in checkout because intro pricing is much lower than the true monthly plan.</li>
+          <li>Our take: NordVPN remains a strong all-round pricing reference because it is competitive without being the absolute cheapest option in the market.</li>
+        </ul>
+        <h3>ExpressVPN Pricing</h3>
+        <ul class="key-list">
+          <li>Monthly plan: $12.99 (billed monthly)</li>
+          <li>Annual plan: $99.95 total for 15 months / about $6.67 per month</li>
+          <li>2-year plan: $97.72 total for 28 months on Basic / about $3.49 per month</li>
+          <li>Money-back guarantee: 30 days</li>
+          <li>Renewal note: the premium positioning means value depends on how much you care about polish, simplicity, and travel fit.</li>
+          <li>Our take: ExpressVPN is rarely the cheapest deal, but it can still make sense for buyers who prefer a more premium-feeling service and are willing to pay for that experience.</li>
+        </ul>
+        <h3>Surfshark Pricing</h3>
+        <ul class="key-list">
+          <li>Monthly plan: $15.45 on Starter</li>
+          <li>Annual plan: $33.48 total / about $2.79 per month</li>
+          <li>2-year plan: $47.76 total / about $1.99 per month</li>
+          <li>Money-back guarantee: 30 days</li>
+          <li>Renewal note: first-term value is excellent, but the renewal story still deserves a manual check before subscribing.</li>
+          <li>Our take: Surfshark continues to stand out for pure household value because unlimited devices can make the effective cost per screen unusually low.</li>
+        </ul>
+        <h3>Proton VPN Pricing</h3>
+        <ul class="key-list">
+          <li>Monthly plan: EUR 9.99 on VPN Plus</li>
+          <li>Annual plan: EUR 47.88 total / about EUR 3.99 per month</li>
+          <li>2-year plan: EUR 71.76 total / about EUR 2.99 per month</li>
+          <li>Money-back guarantee: 30 days</li>
+          <li>Renewal note: Proton's pricing is easier to evaluate when you also weigh the free tier and the rest of the privacy ecosystem.</li>
+          <li>Our take: Proton VPN earns attention because it serves both cautious free-tier users and paid privacy-focused buyers without leaning entirely on aggressive promo framing.</li>
+        </ul>
+      </section>
+      ${renderFaqs(vpnDealsFaqs())}
+      <section class="panel">
+        <div class="section-heading">
+          <span class="eyebrow">Verification</span>
+          <h2>How We Verify Pricing</h2>
+        </div>
+        <p>We verify VPN pricing against each provider's official website at least once per month. We do not rely on third-party price aggregators.</p>
+        <p>For full details on our review methodology, see <a href="${escapeAttr(localPageHref(fromFile, "/how-we-review/"))}">how we review VPNs</a>.</p>
+      </section>
+      <section class="panel">
+        <div class="section-heading">
+          <span class="eyebrow">Maintenance</span>
+          <h2>Last Updated</h2>
+        </div>
+        <p>Pricing last verified: April 2026. Next scheduled update: May 2026.</p>
+        <p>This page contains affiliate links. See our <a href="${escapeAttr(localPageHref(fromFile, "/affiliate-disclosure/"))}">Affiliate Disclosure</a> for details.</p>
+      </section>`;
+}
+
+function bestVpnPricingEditionBody(fromFile) {
+  const rankingEntries = [
+    {
+      rank: "#1",
+      name: "Surfshark",
+      title: "Best overall value",
+      plan: "$1.99/mo on a 24-month Starter plan",
+      renewal: "Verify at checkout before subscribing",
+      refund: "30 days",
+      devices: "Unlimited",
+      bonus: "CleanWeb, household-friendly device policy, low long-term price",
+      route: "/vpn-reviews/surfshark-review/",
+      summary:
+        "Surfshark takes the top spot in this pricing edition because the long-term cost is still one of the lowest among mainstream providers, while the unlimited-device policy stretches that value further for families and mixed-device households. The main caution is that the low headline number only exists on a long commitment, so buyers still need to check renewal language and decide whether they are comfortable paying upfront.",
+    },
+    {
+      rank: "#2",
+      name: "NordVPN",
+      title: "Best all-rounder with strong long-term value",
+      plan: "$3.09/mo on a 27-month Basic offer",
+      renewal: "Higher than the intro rate, so confirm renewal before paying",
+      refund: "30 days",
+      devices: "10",
+      bonus: "Threat Protection tools, broad mainstream fit, strong trust profile",
+      route: "/vpn-costs/nordvpn-price/",
+      summary:
+        "NordVPN lands just behind Surfshark because it balances price and trust extremely well, even if it is not the absolute cheapest service in the market. For many readers, that balance matters more than saving a dollar a month. It remains one of the easiest brands to recommend when the buyer wants a service that feels established, broadly useful, and still competitive on long-term pricing.",
+    },
+    {
+      rank: "#3",
+      name: "Proton VPN",
+      title: "Best free tier plus paid option",
+      plan: "EUR 2.99/mo on 24 months",
+      renewal: "Review annual pricing before renewal if the wider ecosystem is part of the value story",
+      refund: "30 days",
+      devices: "10",
+      bonus: "Free tier, privacy-first ecosystem, strong trust framing",
+      route: "/vpn-reviews/protonvpn-review/",
+      summary:
+        "Proton VPN ranks highly because it offers a pricing ladder that starts with a credible free plan and scales into a paid option without feeling misleading. That makes it useful for readers who want to test the service before committing money. It is not always the pure cheapest paid option, but its free-tier story and privacy-first positioning give it a different kind of value than bargain-led rivals.",
+    },
+    {
+      rank: "#4",
+      name: "Mullvad",
+      title: "Best flat-rate pricing model",
+      plan: "EUR 5 per month flat rate",
+      renewal: "No discount-driven renewal jump because the price structure is flat",
+      refund: "14 days",
+      devices: "5",
+      bonus: "Simple billing, account minimization, privacy-first reputation",
+      route: "/vpn-reviews/mullvad-review/",
+      summary:
+        "Mullvad sits fourth because this ranking rewards low long-term cost, and a flat monthly rate will never beat deep intro discounts on headline pricing. Still, it deserves a high position because it removes one of the most frustrating parts of VPN shopping: the gap between promo pricing and reality. For readers who dislike billing games, that transparency can be worth more than a lower number elsewhere.",
+    },
+    {
+      rank: "#5",
+      name: "ExpressVPN",
+      title: "Best streaming-focused premium option",
+      plan: "$3.49/mo equivalent on a 28-month Basic offer",
+      renewal: "Premium positioning means value depends on how much you prize polish and ease of use",
+      refund: "30 days",
+      devices: "10",
+      bonus: "Lightway protocol, polished apps, travel and streaming fit",
+      route: "/vpn-reviews/expressvpn-review/",
+      summary:
+        "ExpressVPN appears lower in this list because pricing alone is not its strongest argument. It earns its place by offering a premium experience that some readers still find worth paying for, especially when travel flexibility, app polish, and a familiar brand matter more than pure bargain hunting. Buyers who only care about the lowest cost will usually find stronger value elsewhere.",
+    },
+  ];
+
+  return `
+      <section class="panel">
+        <p class="lede">Most best VPN lists rank services by features, speed, or brand recognition. This one does not. Our ranking focuses exclusively on one thing: the real per-month cost you will pay, including renewals, hidden fees, and plan structures most reviewers skip.</p>
+        <p>This is a pricing-focused ranking. If you want feature-by-feature analysis, TechRadar and PCMag have deep reviews. If you want to know which VPN is actually the best value for money in 2026, read on.</p>
+        <p>Our rankings are updated twice per year. This edition covers pricing verified in April 2026.</p>
+      </section>
+      <section class="panel">
+        <div class="section-heading">
+          <span class="eyebrow">Criteria</span>
+          <h2>Our Ranking Criteria</h2>
+        </div>
+        ${renderBulletList([
+          "True per-month cost on the longest commonly marketed consumer term, because that is where the lowest headline prices usually come from.",
+          "Renewal rate after the first term, since aggressive intros can look much less attractive once standard billing starts.",
+          "Money-back guarantee duration and refund reliability, because a cheaper VPN is less useful if the cancellation path is painful.",
+          "Per-device value where limits apply, since unlimited devices can materially change the real household cost.",
+          "Hidden fees or upsells during checkout that make the final price less transparent than the landing page suggests.",
+          "Value of included extras such as threat protection, password tools, or bundled services when they are part of the paid plan.",
+        ])}
+      </section>
+      <section class="panel">
+        <div class="section-heading">
+          <span class="eyebrow">Ranking</span>
+          <h2>The Ranking</h2>
+        </div>
+        ${rankingEntries
+          .map(
+            (entry) => `
+              <article class="ranking-entry">
+                <h3>${escapeHtml(entry.rank)} — ${escapeHtml(entry.name)} — ${escapeHtml(entry.title)}</h3>
+                <ul class="key-list">
+                  <li>Per-month on 2-year plan: ${escapeHtml(entry.plan)}</li>
+                  <li>Renewal rate: ${escapeHtml(entry.renewal)}</li>
+                  <li>Money-back guarantee: ${escapeHtml(entry.refund)}</li>
+                  <li>Simultaneous connections: ${escapeHtml(entry.devices)}</li>
+                  <li>Bonus features: ${escapeHtml(entry.bonus)}</li>
+                </ul>
+                <p>${escapeHtml(entry.summary)}</p>
+                <p><a href="${escapeAttr(localPageHref(fromFile, entry.route))}">See our full pricing analysis of ${escapeHtml(entry.name)} →</a></p>
+              </article>`
+          )
+          .join("")}
+      </section>
+      <section class="panel">
+        <div class="section-heading">
+          <span class="eyebrow">Market Change</span>
+          <h2>Why This Ranking Will Change in 2027</h2>
+        </div>
+        <p>VPN pricing never stays still for long. Providers change term lengths, reposition bundles, and alter renewal language often enough that a fair ranking in April 2026 could look materially different by the next cycle. That is why this page is treated as a living editorial benchmark rather than a timeless list.</p>
+      </section>
+      <section class="panel">
+        <div class="section-heading">
+          <span class="eyebrow">Methodology</span>
+          <h2>Methodology</h2>
+        </div>
+        <p>We verify pricing against provider billing pages, public plan explainers, refund policies, and any relevant help-center notes that clarify what a buyer actually gets. We do not rank providers on coupon hype or temporary marketing urgency alone.</p>
+        <p>For the full methodology behind our pricing checks, review process, and editorial standards, see <a href="${escapeAttr(localPageHref(fromFile, "/how-we-review/"))}">how we review VPNs</a>.</p>
+      </section>
+      <section class="panel">
+        <div class="section-heading">
+          <span class="eyebrow">Verification</span>
+          <h2>Last Verified</h2>
+        </div>
+        <p>All prices verified in April 2026. Next major update: October 2026.</p>
+        <p>This page contains affiliate links. See our <a href="${escapeAttr(localPageHref(fromFile, "/affiliate-disclosure/"))}">Affiliate Disclosure</a> for details.</p>
+      </section>`;
+}
+
+const vpnDealsUtilityPage = utilityPages.find((page) => page.route === "/vpn-deals/");
+if (vpnDealsUtilityPage) vpnDealsUtilityPage.faqs = vpnDealsFaqs();
+
 function utilityBody(page, fromFile) {
   if (page.route === "/contact/") {
     return `
@@ -2706,6 +3034,79 @@ function utilityBody(page, fromFile) {
         </div>
       </section>
       ${researchBox()}`;
+  }
+
+  if (page.route === "/how-we-review/") {
+    return `
+      <section class="panel">
+        <p class="lede">We review VPNs with a pricing-first, evidence-first methodology designed for readers who want practical guidance instead of hype. Every page starts with provider billing pages, refund policies, privacy disclosures, and public audit references before we write a single recommendation.</p>
+        <p>Our goal is simple: explain what a buyer is really paying for, what tradeoffs come with the price, and how clearly the provider communicates those terms. That means we care as much about renewal pricing, refund friction, and transparency as we do about streaming claims or speed headlines.</p>
+      </section>
+      <section class="panel info-grid">
+        <article>
+          <span class="eyebrow">Step 1</span>
+          <h2>We verify pricing directly</h2>
+          <p>We check provider websites, billing pages, checkout screens, and help-center articles rather than relying on price roundups, coupon sites, or scraped deal feeds. When a plan looks unusually cheap, we verify the billed total and the term length separately.</p>
+        </article>
+        <article>
+          <span class="eyebrow">Step 2</span>
+          <h2>We review privacy and policy language</h2>
+          <p>We read the public privacy policy, logging statements, audit references, and any provider explanations that clarify how user data, diagnostics, and account information are handled.</p>
+        </article>
+      </section>
+      <section class="panel">
+        <div class="section-heading">
+          <span class="eyebrow">Methodology</span>
+          <h2>What we evaluate on every VPN page</h2>
+        </div>
+        ${renderBulletList([
+          "True first-term cost, including billed total and commitment length.",
+          "Renewal pricing and whether the provider explains rebilling clearly.",
+          "Money-back guarantee length and how easy refunds appear to be in practice.",
+          "Device limits, platform support, and whether the plan fits households or solo users.",
+          "Privacy disclosures, audit visibility, and the clarity of logging language.",
+          "Use-case fit for streaming, travel, remote work, public Wi-Fi, and general browsing.",
+        ])}
+        <p>We do not assume that the lowest price equals the best value. Some providers are cheap because they are genuinely efficient, while others are cheap because the plan is harder to understand, the renewal is less favorable, or the service sacrifices fit in ways that only appear after purchase.</p>
+      </section>
+      <section class="panel">
+        <div class="section-heading">
+          <span class="eyebrow">Pricing Checks</span>
+          <h2>How we handle price claims and updates</h2>
+        </div>
+        <p>VPN pricing changes frequently, which is why our pages focus on transparent language instead of pretending that one snapshot will stay accurate forever. We note when a price was last verified, distinguish monthly billing from monthly-equivalent marketing, and flag when a strong headline rate only exists on a very long commitment.</p>
+        <p>When a provider introduces new bundles, bonus months, or extra privacy features, we update the page to reflect how those changes affect real value. We would rather publish a cautious range than an exact number that cannot be supported by the checkout flow.</p>
+      </section>
+      <section class="panel">
+        <div class="section-heading">
+          <span class="eyebrow">Editorial Standards</span>
+          <h2>What we do not do</h2>
+        </div>
+        ${renderBulletList([
+          "We do not accept payment for positive reviews or favorable rankings.",
+          "We do not publish fake urgency, coupon-code hype, or unsupported discount claims.",
+          "We do not treat a VPN as a complete cybersecurity solution on its own.",
+          "We do not copy third-party rankings or rely on affiliate feeds for price verification.",
+        ])}
+        <p>If a provider has a strong deal but weak transparency, we say so. If a premium service is polished but overpriced for the average reader, we say that too. The aim is not to make every provider look appealing. It is to help readers make a better decision with less guesswork.</p>
+      </section>
+      <section class="panel">
+        <div class="section-heading">
+          <span class="eyebrow">Corrections</span>
+          <h2>How we handle corrections and reader feedback</h2>
+        </div>
+        <p>Pricing pages, refund terms, and privacy disclosures can all change after publication. When readers or providers flag a factual error, we review the claim, recheck the source material, and update the page when the correction is valid. That process is part of keeping a pricing-focused site trustworthy over time.</p>
+        <p>If you want to report a correction, use the contact details on <a href="${escapeAttr(localPageHref(fromFile, "/contact/"))}">our contact page</a>. For background on commercial relationships, see our <a href="${escapeAttr(localPageHref(fromFile, "/affiliate-disclosure/"))}">Affiliate Disclosure</a>.</p>
+      </section>
+      ${researchBox()}`;
+  }
+
+  if (page.route === "/vpn-deals/") {
+    return vpnDealsBody(fromFile);
+  }
+
+  if (page.route === "/best-vpn-2026-pricing-edition/") {
+    return bestVpnPricingEditionBody(fromFile);
   }
 
   if (page.route === "/affiliate-disclosure/") {
@@ -3032,8 +3433,8 @@ function sitemapXml() {
     .filter((page) => page.route !== "/404/")
     .map(
       (page) => `  <url>
-    <loc>${canonicalUrl(page.route)}</loc>
-    <lastmod>${lastmod}</lastmod>
+    <loc>${pageSitemapUrl(page)}</loc>
+    <lastmod>${pageDate(page)}</lastmod>
   </url>`,
     )
     .join("\n");

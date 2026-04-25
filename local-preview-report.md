@@ -1,6 +1,6 @@
 # Local Preview Report
 
-- Pages checked: 104
+- Pages checked: 107
 - Duplicate titles: 0
 - Duplicate descriptions: 0
 - Duplicate canonicals: 0
