@@ -152,6 +152,14 @@ function nordAffiliateUrl(subId) {
   return `https://go.nordvpn.net/aff_c?offer_id=15&aff_id=146283&aff_sub=${encodeURIComponent(subId)}`;
 }
 
+function nordProtectUrl(subId) {
+  return `https://go.nordprotect.net/aff_c?offer_id=973&aff_id=146283&aff_sub=${encodeURIComponent(subId)}`;
+}
+
+function nordPassBusinessUrl(subId) {
+  return `https://go.nordpass.io/aff_c?offer_id=754&aff_id=146283&aff_sub=${encodeURIComponent(subId)}`;
+}
+
 function ensureTrailingSlash(route) {
   if (route === "/") return route;
   return route.endsWith("/") ? route : `${route}/`;
@@ -370,6 +378,7 @@ function nordAffiliateAnchor(route, label, className = "") {
 function nordTopCard(route) {
   return `
     <div class="affiliate-cta-card">
+      <img src="/assets/affiliate/nordvpn/logos/nordvpn-logo-light.png" alt="NordVPN" width="180" height="47" loading="eager" style="display:block;margin-bottom:0.75rem">
       <h3>NordVPN — From $3.09/mo on 2-year plan</h3>
       <p>One of the most established VPN providers. 30-day money-back guarantee, covered in this review. Plans start at around $3.09/mo on the 2-year Basic plan as of April 2026.</p>
       ${nordAffiliateAnchor(route, "Visit NordVPN →", "cta-btn-primary")}
@@ -409,6 +418,7 @@ function editorPickCard(route) {
 function bestPriceCard(route) {
   return `
     <aside class="best-price-card">
+      <img src="/assets/affiliate/nordvpn/logos/nordvpn-icon-teal.png" alt="NordVPN" width="40" height="40" loading="eager" style="display:block;margin-bottom:0.5rem">
       <p class="best-price-label">Best per-month price right now</p>
       <p class="best-price-body">Of the providers we track, NordVPN's 2-year Basic plan currently sits around $3.09/mo (advertised by the provider as part of the long-term package). Below you'll find the full comparison.</p>
       ${nordAffiliateAnchor(route, "Check live NordVPN price →", "quick-take-cta")}
@@ -865,7 +875,19 @@ function applyNordAffiliateEnhancements(page, bodyHtml) {
   if (page.route === "/vpn-reviews/nordvpn-review/") {
     html = `${nordTopCard(page.route)}${html}`;
     html = html.replace('<p class="lede">NordVPN review', `<p class="lede">${nordAffiliateAnchor(page.route, "NordVPN")} review`);
-    html = html.replace('<span class="eyebrow">People Also Ask</span>', `${nordClosingCard(page.route)}\n    <span class="eyebrow">People Also Ask</span>`);
+    const nordPassBusinessCard = `
+    <div class="affiliate-cta-card-secondary">
+      <p><strong>Also from Nord:</strong> NordPass Business — a team password manager from the same company. If you manage passwords across a team, it pairs naturally with a NordVPN subscription.</p>
+      <a href="${escapeAttr(nordPassBusinessUrl("nordvpn-review-nordpass"))}" rel="nofollow sponsored" target="_blank" class="cta-btn-secondary">View NordPass Business →</a>
+      <small>Affiliate link — see our disclosure above.</small>
+    </div>`;
+    const nordProtectCard = `
+    <div class="affiliate-cta-card-secondary">
+      <p><strong>Also from Nord (US only):</strong> NordProtect — identity theft protection bundled with dark web monitoring and cyber insurance. Available to U.S. residents as a standalone product.</p>
+      <a href="${escapeAttr(nordProtectUrl("nordvpn-review-nordprotect"))}" rel="nofollow sponsored" target="_blank" class="cta-btn-secondary">View NordProtect →</a>
+      <small>Affiliate link — US residents only. See our disclosure above.</small>
+    </div>`;
+    html = html.replace('<span class="eyebrow">People Also Ask</span>', `${nordClosingCard(page.route)}\n${nordPassBusinessCard}\n${nordProtectCard}\n    <span class="eyebrow">People Also Ask</span>`);
   }
 
   if (page.route === "/vpn-costs/nordvpn-price/") {
@@ -3080,6 +3102,22 @@ function vpnDealsBody(fromFile) {
           <li>Money-back guarantee: 30 days</li>
           <li>Renewal note: verify renewal pricing in checkout because intro pricing is much lower than the true monthly plan.</li>
           <li>Our take: NordVPN remains a strong all-round pricing reference because it is competitive without being the absolute cheapest option in the market.</li>
+        </ul>
+        <h3>NordProtect (US only)</h3>
+        <ul class="key-list">
+          <li>Product type: identity theft protection + dark web monitoring + cyber insurance</li>
+          <li>Availability: U.S. residents only</li>
+          <li>From Nord: same company behind NordVPN, so account setup is familiar</li>
+          <li>Our take: a useful add-on for U.S. readers who already trust NordVPN and want identity protection without switching ecosystems.</li>
+          <li><a href="${nordProtectUrl("vpn-deals-nordprotect")}" rel="nofollow sponsored" target="_blank" class="cta-btn-secondary">View NordProtect →</a></li>
+        </ul>
+        <h3>NordPass Business</h3>
+        <ul class="key-list">
+          <li>Product type: team password manager</li>
+          <li>Availability: worldwide</li>
+          <li>From Nord: integrates well if your team already uses NordVPN accounts</li>
+          <li>Our take: if you are evaluating Nord products for a small team, NordPass Business is the logical companion to a NordVPN subscription.</li>
+          <li><a href="${nordPassBusinessUrl("vpn-deals-nordpass")}" rel="nofollow sponsored" target="_blank" class="cta-btn-secondary">View NordPass Business →</a></li>
         </ul>
         <h3>ExpressVPN Pricing</h3>
         <ul class="key-list">
