@@ -160,6 +160,10 @@ function nordPassBusinessUrl(subId) {
   return `https://go.nordpass.io/aff_c?offer_id=754&aff_id=146283&aff_sub=${encodeURIComponent(subId)}`;
 }
 
+function nordPassUrl(subId) {
+  return `https://go.nordpass.io/aff_c?offer_id=488&aff_id=146283&aff_sub=${encodeURIComponent(subId)}`;
+}
+
 function ensureTrailingSlash(route) {
   if (route === "/") return route;
   return route.endsWith("/") ? route : `${route}/`;
@@ -431,6 +435,28 @@ function closingCtaCard(route) {
       <p class="closing-cta-text">Want to compare current NordVPN pricing against the figures in this guide?</p>
       ${nordAffiliateAnchor(route, "View NordVPN plans →", "quick-take-cta")}
     </aside>`;
+}
+
+function nordCrossellBlock(route) {
+  const config = getNordAffiliateConfig(route);
+  if (!config) return "";
+  const sub = config.subId;
+  return `
+    <div class="affiliate-cta-card-secondary">
+      <p><strong>Also from Nord:</strong> NordPass — a personal password manager from the same company. If you already trust NordVPN, NordPass is the natural companion for securing your logins.</p>
+      <a href="${escapeAttr(nordPassUrl(`${sub}-nordpass`))}" rel="nofollow sponsored" target="_blank" class="cta-btn-secondary">View NordPass →</a>
+      <small>Affiliate link — see our disclosure above.</small>
+    </div>
+    <div class="affiliate-cta-card-secondary">
+      <p><strong>Also from Nord:</strong> NordPass Business — team password management for companies already using NordVPN. Centralizes credentials across your organization.</p>
+      <a href="${escapeAttr(nordPassBusinessUrl(`${sub}-nordpass-biz`))}" rel="nofollow sponsored" target="_blank" class="cta-btn-secondary">View NordPass Business →</a>
+      <small>Affiliate link — see our disclosure above.</small>
+    </div>
+    <div class="affiliate-cta-card-secondary">
+      <p><strong>Also from Nord (US only):</strong> NordProtect — identity theft protection with dark web monitoring and cyber insurance. Available to U.S. residents as a standalone product.</p>
+      <a href="${escapeAttr(nordProtectUrl(`${sub}-nordprotect`))}" rel="nofollow sponsored" target="_blank" class="cta-btn-secondary">View NordProtect →</a>
+      <small>Affiliate link — US residents only. See our disclosure above.</small>
+    </div>`;
 }
 
 function headerBehaviorScript() {
@@ -875,19 +901,6 @@ function applyNordAffiliateEnhancements(page, bodyHtml) {
   if (page.route === "/vpn-reviews/nordvpn-review/") {
     html = `${nordTopCard(page.route)}${html}`;
     html = html.replace('<p class="lede">NordVPN review', `<p class="lede">${nordAffiliateAnchor(page.route, "NordVPN")} review`);
-    const nordPassBusinessCard = `
-    <div class="affiliate-cta-card-secondary">
-      <p><strong>Also from Nord:</strong> NordPass Business — a team password manager from the same company. If you manage passwords across a team, it pairs naturally with a NordVPN subscription.</p>
-      <a href="${escapeAttr(nordPassBusinessUrl("nordvpn-review-nordpass"))}" rel="nofollow sponsored" target="_blank" class="cta-btn-secondary">View NordPass Business →</a>
-      <small>Affiliate link — see our disclosure above.</small>
-    </div>`;
-    const nordProtectCard = `
-    <div class="affiliate-cta-card-secondary">
-      <p><strong>Also from Nord (US only):</strong> NordProtect — identity theft protection bundled with dark web monitoring and cyber insurance. Available to U.S. residents as a standalone product.</p>
-      <a href="${escapeAttr(nordProtectUrl("nordvpn-review-nordprotect"))}" rel="nofollow sponsored" target="_blank" class="cta-btn-secondary">View NordProtect →</a>
-      <small>Affiliate link — US residents only. See our disclosure above.</small>
-    </div>`;
-    html = html.replace('<span class="eyebrow">People Also Ask</span>', `${nordClosingCard(page.route)}\n${nordPassBusinessCard}\n${nordProtectCard}\n    <span class="eyebrow">People Also Ask</span>`);
   }
 
   if (page.route === "/vpn-costs/nordvpn-price/") {
@@ -912,7 +925,6 @@ function applyNordAffiliateEnhancements(page, bodyHtml) {
       '<tr><td>Prime</td><td>$16.59-$16.99</td><td>Varies by offer</td><td>$6.99/mo equivalent on current long-term pricing</td><td>Higher renewal depending on region and offer</td></tr>',
       '<tr><td>Prime</td><td>$16.59-$16.99</td><td>Varies by offer</td><td>$6.99/mo equivalent on current long-term pricing</td><td>Higher renewal depending on region and offer</td><td>—</td></tr>',
     );
-    html = html.replace('<span class="eyebrow">People Also Ask</span>', `${nordClosingCard(page.route)}\n    <span class="eyebrow">People Also Ask</span>`);
   }
 
   if (page.route === "/vpn-deals/") {
@@ -974,15 +986,19 @@ function applyNordAffiliateEnhancements(page, bodyHtml) {
     html = html.replace("A shopper comparing NordVPN, ExpressVPN", `A shopper comparing ${nordAffiliateAnchor(page.route, "NordVPN")}, ExpressVPN`);
   }
 
-  const closingCtaRoutes = new Set([
-    "/vpn-costs/",
-    "/pages/vpn-pricing-guide/",
-    "/pages/vpn-price-comparison/",
-    "/vpn-costs/vpn-cost-per-year/",
-  ]);
-
-  if (closingCtaRoutes.has(page.route)) {
-    html = `${html}${closingCtaCard(page.route)}`;
+  // Universal: inject closing CTA + cross-sell block (NordPass 488, NordPass Business 754, NordProtect 973)
+  // before FAQ when available, otherwise before the Verification section at end of body.
+  const crossellInsert = `${nordClosingCard(page.route)}\n${nordCrossellBlock(page.route)}\n    `;
+  if (html.includes('<span class="eyebrow">People Also Ask</span>')) {
+    html = html.replace(
+      '<span class="eyebrow">People Also Ask</span>',
+      `${crossellInsert}<span class="eyebrow">People Also Ask</span>`,
+    );
+  } else {
+    html = html.replace(
+      '<span class="eyebrow">Verification</span>',
+      `${crossellInsert}<span class="eyebrow">Verification</span>`,
+    );
   }
 
   return html;
