@@ -128,7 +128,7 @@ function toFile(route) {
 
 function canonicalUrl(route) {
   if (route === "/") return `${domain}/`;
-  return `${domain}${route.replace(/\/$/, "")}`;
+  return `${domain}${route.endsWith('/') ? route : route + '/'}`;
 }
 
 function pageCanonical(page) {
@@ -3705,7 +3705,7 @@ function redirectsContent() {
     "http://www.vpncostguide.com/* https://vpncostguide.com/:splat 301!",
     "https://www.vpncostguide.com/* https://vpncostguide.com/:splat 301!",
     "/index.html / 301!",
-    "/index / / 301!",
+    "/index / 301!",
   ].join("\n");
 }
 
@@ -3724,6 +3724,8 @@ function headersContent() {
 function robotsContent() {
   return `User-agent: *
 Allow: /
+Disallow: /*?q=*
+Disallow: /*?s=*
 Sitemap: ${domain}/sitemap.xml
 `;
 }
