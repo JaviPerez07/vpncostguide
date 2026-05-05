@@ -348,10 +348,13 @@ function chartMarkup(chart) {
 
 function authorBox() {
   return `
-    <div class="author-box editorial-block">
-      <strong>VPN Cost Guide Editorial Team</strong>
-      <p>Last reviewed: April 2026</p>
-      <p>This guide compiles pricing and privacy information from provider pages, independent audit summaries, and public disclosures. Content is reviewed quarterly against updated provider data.</p>
+    <div class="author-box editorial-block editorial-byline">
+      <img src="/assets/javi-perez-guides.jpg" width="48" height="48" loading="lazy" alt="Javi Pérez">
+      <div>
+        <strong>Javi Pérez</strong> · Editor
+        <a href="https://www.linkedin.com/in/javi-perez-guides" rel="noopener" target="_blank">LinkedIn</a>
+        <p>Last reviewed: May 2026 — quarterly check vs. provider pages, audits, public disclosures.</p>
+      </div>
     </div>`;
 }
 
@@ -558,10 +561,11 @@ function buildArticleSchema(page) {
     "@type": "Article",
     headline: page.h1,
     description: page.description,
-    author: {
+    editor: {
       "@type": "Person",
-      name: site.author.name,
-      jobTitle: site.author.role,
+      name: "Javi Pérez",
+      url: "https://www.linkedin.com/in/javi-perez-guides",
+      sameAs: ["https://www.linkedin.com/in/javi-perez-guides"],
     },
     publisher: {
       "@type": "Organization",
@@ -607,7 +611,39 @@ function buildFaqSchema(faqs) {
   };
 }
 
+function buildHomeSchema() {
+  return {
+    "@context": "https://schema.org",
+    "@graph": [
+      {
+        "@type": "WebSite",
+        "@id": `${domain}/#website`,
+        url: `${domain}/`,
+        name: brand,
+        publisher: { "@id": `${domain}/#organization` },
+      },
+      {
+        "@type": "Organization",
+        "@id": `${domain}/#organization`,
+        name: brand,
+        url: `${domain}/`,
+        email: site.email,
+        logo: site.organization.logo,
+        founder: {
+          "@type": "Person",
+          name: "Javi Pérez",
+          url: "https://www.linkedin.com/in/javi-perez-guides",
+          sameAs: ["https://www.linkedin.com/in/javi-perez-guides"],
+        },
+      },
+    ],
+  };
+}
+
 function headSchemas(page, faqList, crumbs) {
+  if (page.route === "/") {
+    return `<script type="application/ld+json">\n${JSON.stringify(buildHomeSchema(), null, 2)}\n</script>`;
+  }
   if (!faqList.length) return "";
   return [
     buildArticleSchema(page),
@@ -3458,8 +3494,9 @@ function utilityBody(page, fromFile) {
 
   const blocks = {
     "/about/": [
-      "VPN Cost Guide was built to cover a specific gap in the market: many VPN websites are either too sales-driven, too technical, or too thin to help mainstream readers make a smart buying decision. We focus on subscription math, privacy trust, and everyday cybersecurity behavior for people in the United States.",
-      "Our editorial goal is practical clarity. That means explaining when a premium VPN is actually worth it, when a cheaper plan is enough, when a free tool creates too much compromise, and how a VPN fits into broader online safety rather than pretending it solves everything alone.",
+      "I'm Javi Pérez, the editor behind VPN Cost Guide. I run this editorial operation from Almería, in southern Spain, working with NordVPN affiliate documentation, public privacy/security audits, and NIST/ENISA security guidelines to ensure all guides reflect current VPN pricing and service comparisons.",
+      "I have a background in IT and content operations — not cybersecurity or law. I'm not a security researcher or attorney, and nothing on this site constitutes legal or security advice. For specific situations, consult a licensed professional.",
+      "Connect with me on LinkedIn: linkedin.com/in/javi-perez-guides",
     ],
     "/privacy-policy/": [
       "We collect the minimum information needed to operate the site, respond to messages, prevent abuse, and understand high-level performance trends. We do not sell personal information. Essential cookies support consent preferences, security, and site functionality.",
@@ -3475,7 +3512,12 @@ function utilityBody(page, fromFile) {
       "VPN reviews and comparisons reflect editorial judgment at the time of publication. Pricing, product quality, and policies can change, so readers should verify final details directly with providers before purchase.",
     ],
     "/editorial-policy/": [
-      "Our editorial team prioritizes clarity, factual accuracy, independent judgment, and transparent updates. Commercial considerations do not override user value, and pages are revised when pricing structures, privacy claims, or consumer risk factors materially change.",
+      "VPN Cost Guide prioritizes clarity, factual accuracy, independent judgment, and transparent updates. Commercial considerations do not override user value, and pages are revised when pricing structures, privacy claims, or consumer risk factors materially change.",
+      "Sourcing hierarchy. Our research follows a four-tier sourcing hierarchy: (1) official VPN provider documentation including NordVPN, ExpressVPN, Surfshark, ProtonVPN, and similar published materials; (2) independent privacy and security audits from recognized firms such as Cure53, Deloitte, and PwC; (3) NIST and ENISA cybersecurity guidelines for baseline threat-model and best-practice references; (4) public industry reports, regulatory filings, and provider press releases.",
+      "Review cycle. Content is reviewed quarterly against the latest provider pricing pages, terms of service, and refund policies. Each guide displays a 'Last reviewed' timestamp visible at the top of the page so readers can verify freshness.",
+      "FTC affiliate disclosure. VPN Cost Guide receives compensation through affiliate partnerships, including NordVPN and related Nord Security products. Compensation does not affect editorial recommendations, comparison rankings, or scoring methodology — paid placement is never sold, and provider-supplied copy is not republished as editorial content.",
+      "Independence statement. All recommendations are based on publicly available data, provider documentation, audit summaries, and the editor's hands-on testing where applicable. We do not accept gifts, sponsored reviews, or undisclosed product seeding from VPN vendors.",
+      "Corrections policy. Errors are corrected within 24 hours of notification. Significant updates are flagged with an updated 'Last reviewed' timestamp and, where material, a brief change note. Readers can submit corrections to javiperezguides@gmail.com.",
       "We avoid exaggerated security claims, unsupported rankings, fake urgency, or dummy ad-slot language that weakens trust. Content is structured to support both real readers and sustainable ad-quality standards.",
     ],
     "/how-we-research/": [
